@@ -1,0 +1,8 @@
+{
+  "name": "Bright N Bliss",
+  "description": "A minimal, beige-themed e-commerce landing page for Bright N Bliss flower shop.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
