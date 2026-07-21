@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Link } from "react-router-dom";
+
 export function Footer() {
   return (
-    <footer className="bg-beige-200 text-beige-900 pt-24 pb-12 border-t border-beige-900/10">
+    <footer className="bg-beige-100 text-beige-900 pt-24 pb-12 border-t border-beige-900/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
           <div className="col-span-1 md:col-span-1">
@@ -32,6 +34,7 @@ export function Footer() {
               <li><a href="#" className="hover:text-beige-900 transition-colors">Care Guide</a></li>
               <li><a href="#" className="hover:text-beige-900 transition-colors">FAQ</a></li>
               <li><a href="#" className="hover:text-beige-900 transition-colors">Contact Us</a></li>
+              <li><Link to="/admin" className="hover:text-beige-900 transition-colors opacity-40 hover:opacity-100">Admin Access</Link></li>
             </ul>
           </div>
 

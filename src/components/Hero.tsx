@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 
 export function Hero() {
   return (
-    <section className="relative h-[80vh] flex items-center overflow-hidden bg-beige-200">
+    <section className="relative h-[80vh] flex items-center overflow-hidden bg-beige-100">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
