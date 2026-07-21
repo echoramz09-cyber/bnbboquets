@@ -12,7 +12,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col selection:bg-beige-300 selection:text-beige-900">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow bg-beige-200">
         <Hero />
         <ProductGrid />
       </main>

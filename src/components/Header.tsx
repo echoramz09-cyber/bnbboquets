@@ -18,10 +18,9 @@ export function Header() {
             </button>
           </div>
 
-          {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <h1 className="text-2xl font-serif font-medium tracking-tight text-beige-900 uppercase">
-              Bright N Bliss
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-signature text-beige-900 lowercase inline-block scale-x-90 origin-center">
+              bright n bliss bouquets
             </h1>
           </div>
 

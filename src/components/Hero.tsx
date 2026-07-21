@@ -7,17 +7,7 @@ import { motion } from "motion/react";
 
 export function Hero() {
   return (
-    <section className="relative h-[80vh] flex items-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <img 
-          src="/src/assets/images/flower_hero_banner_1784557515613.jpg" 
-          alt="Elegant floral bouquet" 
-          className="w-full h-full object-cover"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-beige-900/10 mix-blend-multiply"></div>
-      </div>
-      
+    <section className="relative h-[80vh] flex items-center overflow-hidden bg-beige-200">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -25,9 +15,9 @@ export function Hero() {
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-xl"
         >
-          <h2 className="text-5xl md:text-7xl font-serif font-medium leading-tight text-beige-900 mb-8 pt-6">
+          <h2 className="text-4xl sm:text-5xl md:text-7xl font-serif font-medium leading-tight text-beige-900 mb-8 pt-6">
             Bouquets <br />
-            <span className="italic text-beige-900/80">by Alisha</span>
+            <span className="font-signature text-6xl sm:text-8xl md:text-9xl text-beige-900/80 lowercase inline-block scale-x-90 origin-left">by alisha</span>
           </h2>
           <p className="text-lg text-beige-900/80 mb-10 max-w-md font-sans">
             Handcrafted bouquets delivered fresh to your doorstep. Every flower tells a story of elegance and grace.
