@@ -71,8 +71,7 @@ export function ProductGrid() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 md:mb-16">
           <div className="max-w-md">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif mb-4 md:mb-6">Explore Our Collections</h3>
-            <p className="text-beige-900/60 font-sans text-sm sm:text-base">Discover artisanal floral arrangements handcrafted daily by our expert florists.</p>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif mb-4 md:mb-6">Our Featured Products</h3>
           </div>
         </div>
 
