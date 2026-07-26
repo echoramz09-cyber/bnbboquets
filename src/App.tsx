@@ -14,6 +14,7 @@ import { Footer } from "./components/Footer";
 import { AdminLogin } from "./pages/AdminLogin";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { ImageCarousel } from "./components/ImageCarousel";
 
 function LandingPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,7 @@ function LandingPage() {
         ) : (
           <React.Fragment key="content">
             <main className="flex-grow bg-beige-100">
+              <ImageCarousel />
               <CategorySection />
               <Hero />
               <ProductGrid />
