@@ -34,7 +34,7 @@ export function ProductGrid() {
                   <p className="text-sm text-beige-900/50 italic">{category.description}</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
                   {categoryProducts.map((product, index) => (
                     <motion.div 
                       key={product.id}
@@ -45,27 +45,38 @@ export function ProductGrid() {
                       className="group cursor-pointer w-full"
                       id={`product-${product.id}`}
                     >
-                      <div className="relative aspect-[4/5] overflow-hidden bg-beige-200 mb-6">
+                      <div className="relative aspect-square overflow-hidden bg-beige-200 mb-6 border-2 border-[#5d4037] rounded-none">
                         <img 
                           src={product.image} 
                           alt={product.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                         <div className="absolute top-4 left-4">
-                          <span className="bg-beige-50/90 backdrop-blur-sm px-3 py-1 text-[10px] uppercase tracking-wider font-medium text-beige-900">
+                          <span className="bg-beige-50/90 backdrop-blur-sm px-3 py-1 text-[10px] uppercase tracking-wider font-medium text-[#5d4037]">
                             {product.tag}
                           </span>
                         </div>
-                        <button className="absolute bottom-6 right-6 w-12 h-12 bg-beige-900 text-beige-50 flex items-center justify-center rounded-full opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-xl" id={`add-to-cart-${product.id}`}>
-                          <Plus size={24} />
-                        </button>
                       </div>
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start mb-4">
                         <div>
                           <h4 className="font-serif text-lg text-beige-900 mb-1">{product.name}</h4>
                           <p className="text-beige-900/50 text-sm">{product.description || 'Bright & Joyful Blooms'}</p>
                         </div>
-                        <p className="font-sans font-medium text-beige-900">{product.price}</p>
+                        <p className="font-sans font-medium text-[#5d4037]">{product.price}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button 
+                          className="py-2.5 px-2 bg-[#5d4037] text-white text-[10px] uppercase tracking-widest font-medium hover:bg-[#4a332c] transition-colors"
+                          id={`add-to-cart-${product.id}`}
+                        >
+                          Add to Cart
+                        </button>
+                        <button 
+                          className="py-2.5 px-2 bg-transparent border border-[#5d4037] text-[#5d4037] text-[10px] uppercase tracking-widest font-medium hover:bg-[#5d4037] hover:text-white transition-all"
+                          id={`buy-now-${product.id}`}
+                        >
+                          Buy Now
+                        </button>
                       </div>
                     </motion.div>
                   ))}

@@ -39,7 +39,7 @@ export function CategorySection() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1, duration: 0.6 }}
-              className="relative group overflow-hidden min-h-[250px] sm:h-[400px] bg-beige-200 rounded-sm shadow-sm flex items-center justify-center cursor-pointer"
+              className="relative group overflow-hidden aspect-square bg-beige-200 rounded-sm shadow-sm flex items-center justify-center cursor-pointer"
               onClick={() => {
                 const element = document.getElementById(`category-${category.id}`);
                 if (element) {
