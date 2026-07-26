@@ -4,16 +4,21 @@
  */
 
 import { Link } from "react-router-dom";
+import { useSiteSettings } from "../hooks/useLiveContent";
 
 export function Footer() {
+  const settings = useSiteSettings();
+
   return (
     <footer className="bg-beige-100 text-beige-900 pt-24 pb-12 border-t border-beige-900/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
           <div className="col-span-1 md:col-span-1">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-signature text-beige-900 lowercase mb-6 inline-block scale-x-90 origin-left">bright n bliss bouquets</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-signature text-beige-900 lowercase mb-6 inline-block scale-x-90 origin-left">
+              {settings?.logo || "bright n bliss"} bouquets
+            </h2>
             <p className="text-beige-900/60 text-sm leading-relaxed mb-8">
-              Bringing nature's beauty into your home with artisanal floral arrangements crafted with love.
+              {settings?.footer?.tagline || "Bringing nature's beauty into your home with artisanal floral arrangements crafted with love."}
             </p>
           </div>
           
@@ -53,7 +58,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-beige-900/10 text-[10px] uppercase tracking-widest text-beige-900/40">
-          <p>© 2024 Bright N Bliss Bouquets. All Rights Reserved.</p>
+          <p>{settings?.footer?.copyright || "© 2024 Bright N Bliss Bouquets. All Rights Reserved."}</p>
           <div className="flex space-x-8 mt-4 md:mt-0">
             <a href="#" className="hover:text-beige-900 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-beige-900 transition-colors">Terms of Service</a>

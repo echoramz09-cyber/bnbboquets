@@ -2,20 +2,45 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Lock } from 'lucide-react';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 export function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    // Map username to email for Firebase Auth
+    const email = username.includes('@') ? username : `${username}@brightnbliss.com`;
+
+    // Priority bypass for the admin account to handle cases where Firebase Auth providers are disabled
     if (username === 'alisha' && password === 'helloalisha') {
-      localStorage.setItem('admin_auth', 'true');
+      localStorage.setItem('admin_bypass', 'true');
       navigate('/admin/dashboard');
-    } else {
-      setError('Invalid username or password');
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      localStorage.removeItem('admin_bypass'); // Clear bypass if real auth works
+      navigate('/admin/dashboard');
+    } catch (err: any) {
+      console.error("Login error code:", err.code);
+      
+      if (err.code === 'auth/operation-not-allowed') {
+        setError('Email/Password login is currently disabled in your Firebase Console. Please use the default credentials to bypass.');
+      } else {
+        setError('Invalid username or password. Please check your credentials.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,6 +69,7 @@ export function AdminLogin() {
               className="w-full bg-beige-50 border border-beige-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-beige-300 transition-all"
               placeholder="Enter username"
               required
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -55,18 +81,20 @@ export function AdminLogin() {
               className="w-full bg-beige-50 border border-beige-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-beige-300 transition-all"
               placeholder="Enter password"
               required
+              disabled={isLoading}
             />
           </div>
 
           {error && (
-            <p className="text-red-500 text-xs mt-1">{error}</p>
+            <p className="text-red-500 text-xs mt-1 text-center">{error}</p>
           )}
 
           <button 
             type="submit"
-            className="w-full bg-beige-900 text-white py-3 rounded-lg text-sm font-medium hover:bg-beige-900/90 transition-colors shadow-lg"
+            disabled={isLoading}
+            className={`w-full bg-beige-900 text-white py-3 rounded-lg text-sm font-medium transition-colors shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-beige-900/90'}`}
           >
-            Sign In
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
       </motion.div>

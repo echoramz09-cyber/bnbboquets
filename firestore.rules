@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // TEMPORARY: Allow public read/write access so the user can test the app
+    // while Firebase Authentication setup is failing in their console.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

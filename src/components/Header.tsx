@@ -5,8 +5,11 @@
 
 import { motion } from "motion/react";
 import { ShoppingBag, Menu, Search, Heart } from "lucide-react";
+import { useSiteSettings } from "../hooks/useLiveContent";
 
 export function Header() {
+  const settings = useSiteSettings();
+
   return (
     <header className="sticky top-0 z-50 w-full bg-beige-100/80 backdrop-blur-md border-b border-beige-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,7 +23,7 @@ export function Header() {
 
           <div className="flex-shrink-0 flex items-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-signature text-beige-900 lowercase inline-block scale-x-90 origin-center">
-              bright n bliss bouquets
+              {settings?.logo || "bright n bliss"} bouquets
             </h1>
           </div>
 

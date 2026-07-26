@@ -1,0 +1,83 @@
+{
+  "collections": {
+    "siteSettings": {
+      "global": {
+        "hero": {
+          "title": "Exquisite Selections",
+          "subtitle": "Shop By Category"
+        },
+        "footer": {
+          "tagline": "Bringing nature's beauty into your home with artisanal floral arrangements crafted with love.",
+          "copyright": "© 2024 Bright N Bliss Bouquets. All Rights Reserved."
+        },
+        "logo": "bright n bliss"
+      }
+    },
+    "categories": {
+      "sunshine": {
+        "name": "Sunshine Collection",
+        "description": "Bright seasonal yellows and radiant blooms.",
+        "image": "https://images.unsplash.com/photo-1597848212624-a19eb35e2e47?w=800&q=80&auto=format",
+        "order": 1
+      },
+      "gifting": {
+        "name": "Floral Gifting",
+        "description": "Curated experiences for your loved ones.",
+        "image": "https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=800&q=80&auto=format",
+        "order": 2
+      },
+      "bouquets": {
+        "name": "Bouquets",
+        "description": "Handcrafted arrangements for every occasion.",
+        "image": "https://images.unsplash.com/photo-1582794541212-925f04207868?w=800&q=80&auto=format",
+        "order": 3
+      },
+      "customization": {
+        "name": "Customization Box",
+        "description": "Personalize your own floral journey.",
+        "image": "https://images.unsplash.com/photo-1558229854-47494ec2f38d?w=800&q=80&auto=format",
+        "order": 4
+      }
+    },
+    "products": {
+      "prod_1": {
+        "name": "Radiant Sunburst",
+        "price": "INR 699/-",
+        "image": "https://images.unsplash.com/photo-1597848212624-a19eb35e2e47?q=80&w=1000&auto=format&fit=crop",
+        "tag": "Bestseller",
+        "categoryId": "sunshine",
+        "order": 1
+      },
+      "prod_2": {
+        "name": "Signature Gift Box",
+        "price": "INR 1299/-",
+        "image": "https://images.unsplash.com/photo-1522673607200-1648483b4cdd?q=80&w=1000&auto=format&fit=crop",
+        "tag": "Premium",
+        "categoryId": "gifting",
+        "order": 1
+      },
+      "prod_3": {
+        "name": "Classic Meadow Mix",
+        "price": "INR 899/-",
+        "image": "https://images.unsplash.com/photo-1523694559144-4ec0d3937395?q=80&w=1000&auto=format&fit=crop",
+        "tag": "Popular",
+        "categoryId": "bouquets",
+        "order": 1
+      },
+      "prod_4": {
+        "name": "Artisan's Choice Kit",
+        "price": "INR 1599/-",
+        "image": "https://images.unsplash.com/photo-1558229854-47494ec2f38d?q=80&w=1000&auto=format&fit=crop",
+        "tag": "New",
+        "categoryId": "customization",
+        "order": 1
+      }
+    },
+    "carousel": {
+      "img_1": { "image": "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&q=80&w=800", "order": 1 },
+      "img_2": { "image": "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&q=80&w=800", "order": 2 },
+      "img_3": { "image": "https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&q=80&w=800", "order": 3 },
+      "img_4": { "image": "https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?auto=format&fit=crop&q=80&w=800", "order": 4 }
+    }
+  }
+}
