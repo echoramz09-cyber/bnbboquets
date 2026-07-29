@@ -13,6 +13,7 @@ import { ProductGrid } from "./components/ProductGrid";
 import { Footer } from "./components/Footer";
 import { AdminLogin } from "./pages/AdminLogin";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { CategoryPage } from "./pages/CategoryPage";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { ImageCarousel } from "./components/ImageCarousel";
 
@@ -53,6 +54,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/category/:categoryId" element={<CategoryPage />} />
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>

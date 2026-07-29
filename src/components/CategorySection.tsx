@@ -4,6 +4,7 @@
  */
 
 import { motion } from "motion/react";
+import { Link } from "react-router-dom";
 import { useCategories, useSiteSettings } from "../hooks/useLiveContent";
 
 export function CategorySection() {
@@ -39,28 +40,26 @@ export function CategorySection() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1, duration: 0.6 }}
-              className="relative group overflow-hidden aspect-square bg-beige-200 rounded-sm shadow-sm flex items-center justify-center cursor-pointer"
-              onClick={() => {
-                const element = document.getElementById(`category-${category.id}`);
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
             >
-              <img 
-                src={category.image} 
-                alt={category.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-beige-900/25 group-hover:bg-beige-900/35 transition-colors duration-500"></div>
-              
-              <div className="relative z-10 text-center p-2 sm:p-4">
-                <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] sm:tracking-[0.3em] font-montserrat font-semibold text-beige-50/80 mb-1 sm:mb-2 drop-shadow-sm block">Collection</span>
-                <h3 className="text-base sm:text-2xl md:text-3xl font-montserrat font-bold text-beige-50 drop-shadow-lg leading-tight">
-                  {category.name}
-                </h3>
-                <div className="mt-2 sm:mt-4 w-6 sm:w-8 h-px bg-beige-50/30 mx-auto"></div>
-              </div>
+              <Link
+                to={`/category/${category.id}`}
+                className="relative group overflow-hidden aspect-square bg-beige-200 rounded-sm shadow-sm flex items-center justify-center cursor-pointer block"
+              >
+                <img 
+                  src={category.image} 
+                  alt={category.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-beige-900/25 group-hover:bg-beige-900/35 transition-colors duration-500"></div>
+                
+                <div className="relative z-10 text-center p-2 sm:p-4">
+                  <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] sm:tracking-[0.3em] font-montserrat font-semibold text-beige-50/80 mb-1 sm:mb-2 drop-shadow-sm block">Collection</span>
+                  <h3 className="text-base sm:text-2xl md:text-3xl font-montserrat font-bold text-beige-50 drop-shadow-lg leading-tight">
+                    {category.name}
+                  </h3>
+                  <div className="mt-2 sm:mt-4 w-6 sm:w-8 h-px bg-beige-50/30 mx-auto"></div>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>
