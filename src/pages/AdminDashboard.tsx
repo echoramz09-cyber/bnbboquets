@@ -17,6 +17,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { Category, Product, CarouselImage, SiteSettings } from '../types';
+import { compressImageFile, formatPrice } from '../lib/imageUtils';
 
 export function AdminDashboard() {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ export function AdminDashboard() {
   // Edit states
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     const isBypassed = localStorage.getItem('admin_bypass') === 'true';
@@ -112,9 +114,27 @@ export function AdminDashboard() {
     }
   };
 
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const dataUrl = await compressImageFile(file);
+      setEditingItem((prev: any) => ({ ...prev, image: dataUrl }));
+    } catch (err) {
+      console.error("Failed to compress image:", err);
+      alert("Failed to process image file. Please try again.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data = editingItem;
+    const data = { ...editingItem };
+    if (activeTab === 'Products' && data.price) {
+      data.price = formatPrice(data.price);
+    }
     const collectionName = activeTab.toLowerCase() === 'carousel' ? 'carousel' : activeTab.toLowerCase();
     
     if (data.id && !data.id.startsWith('new-')) {
@@ -271,11 +291,11 @@ export function AdminDashboard() {
             <div className="bg-white p-8 rounded-2xl border border-beige-200 shadow-sm">
               <h3 className="font-serif text-xl mb-6">Quick Actions</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button onClick={() => { setActiveTab('Collections'); setEditingItem({ name: '', description: '', image: '', order: categories.length + 1 }); setIsModalOpen(true); }} className="p-4 bg-beige-50 rounded-xl border border-beige-200 hover:bg-beige-100 transition-all text-center">
+                <button onClick={() => { setActiveTab('Collections'); setEditingItem({ id: '', name: '', description: '', image: '', order: categories.length + 1 }); setIsModalOpen(true); }} className="p-4 bg-beige-50 rounded-xl border border-beige-200 hover:bg-beige-100 transition-all text-center">
                   <ImageIcon className="mx-auto mb-2 text-beige-900/60" size={24} />
                   <span className="text-xs font-medium">Add Collection</span>
                 </button>
-                <button onClick={() => { setActiveTab('Products'); setEditingItem({ name: '', price: '', image: '', tag: 'New', categoryId: categories[0]?.id || '', order: products.length + 1 }); setIsModalOpen(true); }} className="p-4 bg-beige-50 rounded-xl border border-beige-200 hover:bg-beige-100 transition-all text-center">
+                <button onClick={() => { setActiveTab('Products'); setEditingItem({ id: '', name: '', description: '', price: '', image: '', tag: 'New', categoryId: categories[0]?.id || '', order: products.length + 1 }); setIsModalOpen(true); }} className="p-4 bg-beige-50 rounded-xl border border-beige-200 hover:bg-beige-100 transition-all text-center">
                   <Package className="mx-auto mb-2 text-beige-900/60" size={24} />
                   <span className="text-xs font-medium">Add Product</span>
                 </button>
@@ -288,7 +308,7 @@ export function AdminDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="font-serif text-lg sm:text-xl text-beige-900">Manage Collections</h3>
-              <button onClick={() => { setEditingItem({ name: '', description: '', image: '', order: categories.length + 1 }); setIsModalOpen(true); }} className="bg-beige-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+              <button onClick={() => { setEditingItem({ id: '', name: '', description: '', image: '', order: categories.length + 1 }); setIsModalOpen(true); }} className="bg-beige-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0">
                 <Plus size={16} /> <span>New Collection</span>
               </button>
             </div>
@@ -298,7 +318,7 @@ export function AdminDashboard() {
                   <div className="aspect-video bg-beige-100 relative">
                     <img src={cat.image} className="w-full h-full object-cover" alt={cat.name} />
                     <div className="absolute inset-0 bg-black/40 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3 p-2">
-                      <button onClick={() => { setEditingItem(cat); setIsModalOpen(true); }} className="p-2.5 bg-white rounded-full text-beige-900 shadow-md hover:bg-beige-100"><Edit2 size={16} /></button>
+                      <button onClick={() => { setEditingItem({ name: '', description: '', image: '', ...cat }); setIsModalOpen(true); }} className="p-2.5 bg-white rounded-full text-beige-900 shadow-md hover:bg-beige-100"><Edit2 size={16} /></button>
                       <button onClick={() => handleDeleteItem(cat.id)} className="p-2.5 bg-white rounded-full text-red-500 shadow-md hover:bg-red-50"><Trash2 size={16} /></button>
                     </div>
                   </div>
@@ -316,7 +336,7 @@ export function AdminDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="font-serif text-lg sm:text-xl text-beige-900">Manage Products</h3>
-              <button onClick={() => { setEditingItem({ name: '', price: '', image: '', tag: 'New', categoryId: categories[0]?.id || '', order: products.length + 1 }); setIsModalOpen(true); }} className="bg-beige-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+              <button onClick={() => { setEditingItem({ id: '', name: '', description: '', price: '', image: '', tag: 'New', categoryId: categories[0]?.id || '', order: products.length + 1 }); setIsModalOpen(true); }} className="bg-beige-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0">
                 <Plus size={16} /> <span>New Product</span>
               </button>
             </div>
@@ -331,10 +351,10 @@ export function AdminDashboard() {
                     <p className="text-xs text-beige-900/50 truncate mt-0.5">
                       {categories.find(c => c.id === prod.categoryId)?.name || 'Uncategorized'}
                     </p>
-                    <p className="text-xs font-semibold text-[#5d4037] mt-1">{prod.price}</p>
+                    <p className="text-xs font-semibold text-[#5d4037] mt-1">{formatPrice(prod.price)}</p>
                   </div>
                   <div className="flex flex-col space-y-2 shrink-0">
-                    <button onClick={() => { setEditingItem(prod); setIsModalOpen(true); }} className="p-1.5 text-beige-900/60 hover:text-beige-900 bg-beige-50 rounded-md"><Edit2 size={15} /></button>
+                    <button onClick={() => { setEditingItem({ name: '', description: '', price: '', image: '', tag: '', categoryId: categories[0]?.id || '', ...prod }); setIsModalOpen(true); }} className="p-1.5 text-beige-900/60 hover:text-beige-900 bg-beige-50 rounded-md"><Edit2 size={15} /></button>
                     <button onClick={() => handleDeleteItem(prod.id)} className="p-1.5 text-red-500/60 hover:text-red-500 bg-red-50 rounded-md"><Trash2 size={15} /></button>
                   </div>
                 </div>
@@ -364,10 +384,10 @@ export function AdminDashboard() {
                       <td className="px-6 py-4 text-sm text-beige-900/60">
                         {categories.find(c => c.id === prod.categoryId)?.name || 'Unknown'}
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium">{prod.price}</td>
+                      <td className="px-6 py-4 text-sm font-medium">{formatPrice(prod.price)}</td>
                       <td className="px-6 py-4">
                         <div className="flex space-x-3">
-                          <button onClick={() => { setEditingItem(prod); setIsModalOpen(true); }} className="text-beige-900/40 hover:text-beige-900"><Edit2 size={16} /></button>
+                          <button onClick={() => { setEditingItem({ name: '', description: '', price: '', image: '', tag: '', categoryId: categories[0]?.id || '', ...prod }); setIsModalOpen(true); }} className="text-beige-900/40 hover:text-beige-900"><Edit2 size={16} /></button>
                           <button onClick={() => handleDeleteItem(prod.id)} className="text-beige-900/40 hover:text-red-500"><Trash2 size={16} /></button>
                         </div>
                       </td>
@@ -383,7 +403,7 @@ export function AdminDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="font-serif text-lg sm:text-xl text-beige-900">Carousel Images</h3>
-              <button onClick={() => { setEditingItem({ image: '', order: carousel.length + 1 }); setIsModalOpen(true); }} className="bg-beige-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+              <button onClick={() => { setEditingItem({ id: '', image: '', order: carousel.length + 1 }); setIsModalOpen(true); }} className="bg-beige-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-1.5 sm:space-x-2 shrink-0">
                 <Plus size={16} /> <span>Add Image</span>
               </button>
             </div>
@@ -521,25 +541,76 @@ export function AdminDashboard() {
               <form onSubmit={handleSaveItem} className="p-4 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto flex-grow">
                 {activeTab === 'Collections' && (
                   <>
-                    <input placeholder="Name" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.name} onChange={e => setEditingItem({...editingItem, name: e.target.value})} required />
-                    <textarea placeholder="Description" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm h-24 focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.description} onChange={e => setEditingItem({...editingItem, description: e.target.value})} required />
-                    <input placeholder="Image URL" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.image} onChange={e => setEditingItem({...editingItem, image: e.target.value})} required />
+                    <input placeholder="Name" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.name || ''} onChange={e => setEditingItem({...editingItem, name: e.target.value})} required />
+                    <textarea placeholder="Description" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm h-20 focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.description || ''} onChange={e => setEditingItem({...editingItem, description: e.target.value})} required />
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-beige-900/60">Collection Image</label>
+                      <label className="cursor-pointer border-2 border-dashed border-beige-300 hover:border-[#5d4037] bg-beige-50 hover:bg-beige-100/80 rounded-xl p-4 flex flex-col items-center justify-center transition-all text-center group">
+                        <input type="file" accept="image/*" className="hidden" onChange={handleImageFileUpload} disabled={isUploadingImage} />
+                        <Upload size={22} className="text-beige-900/50 group-hover:text-[#5d4037] mb-1.5 transition-colors" />
+                        <span className="text-xs font-semibold text-beige-900 group-hover:text-[#5d4037]">
+                          {isUploadingImage ? "Compressing & Uploading..." : "Upload Image File to Firebase"}
+                        </span>
+                        <span className="text-[10px] text-beige-900/50 mt-0.5">JPG, PNG, WEBP saved directly to Firebase database</span>
+                      </label>
+                      {editingItem.image && (
+                        <div className="relative rounded-xl overflow-hidden border border-beige-200 aspect-video bg-beige-100 max-h-36 flex items-center justify-center">
+                          <img src={editingItem.image} alt="Preview" className="h-full w-full object-cover" />
+                          <button type="button" onClick={() => setEditingItem({...editingItem, image: ''})} className="absolute top-2 right-2 p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"><X size={14} /></button>
+                        </div>
+                      )}
+                      <input placeholder="Or enter direct Image URL" className="w-full p-2.5 bg-beige-50 border border-beige-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.image || ''} onChange={e => setEditingItem({...editingItem, image: e.target.value})} required />
+                    </div>
                   </>
                 )}
                 {activeTab === 'Products' && (
                   <>
-                    <input placeholder="Name" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.name} onChange={e => setEditingItem({...editingItem, name: e.target.value})} required />
-                    <input placeholder="Subtitle/Description" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.description} onChange={e => setEditingItem({...editingItem, description: e.target.value})} />
-                    <input placeholder="Price (e.g. INR 699/-)" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.price} onChange={e => setEditingItem({...editingItem, price: e.target.value})} required />
-                    <input placeholder="Image URL" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.image} onChange={e => setEditingItem({...editingItem, image: e.target.value})} required />
-                    <input placeholder="Tag (e.g. Bestseller)" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.tag} onChange={e => setEditingItem({...editingItem, tag: e.target.value})} />
-                    <select className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.categoryId} onChange={e => setEditingItem({...editingItem, categoryId: e.target.value})} required>
+                    <input placeholder="Name" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.name || ''} onChange={e => setEditingItem({...editingItem, name: e.target.value})} required />
+                    <input placeholder="Subtitle/Description" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.description || ''} onChange={e => setEditingItem({...editingItem, description: e.target.value})} />
+                    <input placeholder="Price (e.g. ₹699/-)" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.price || ''} onChange={e => setEditingItem({...editingItem, price: e.target.value})} required />
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-beige-900/60">Product Image</label>
+                      <label className="cursor-pointer border-2 border-dashed border-beige-300 hover:border-[#5d4037] bg-beige-50 hover:bg-beige-100/80 rounded-xl p-4 flex flex-col items-center justify-center transition-all text-center group">
+                        <input type="file" accept="image/*" className="hidden" onChange={handleImageFileUpload} disabled={isUploadingImage} />
+                        <Upload size={22} className="text-beige-900/50 group-hover:text-[#5d4037] mb-1.5 transition-colors" />
+                        <span className="text-xs font-semibold text-beige-900 group-hover:text-[#5d4037]">
+                          {isUploadingImage ? "Compressing & Uploading..." : "Upload Product Image File to Firebase"}
+                        </span>
+                        <span className="text-[10px] text-beige-900/50 mt-0.5">JPG, PNG, WEBP saved directly to Firebase database</span>
+                      </label>
+                      {editingItem.image && (
+                        <div className="relative rounded-xl overflow-hidden border border-beige-200 aspect-video bg-beige-100 max-h-36 flex items-center justify-center">
+                          <img src={editingItem.image} alt="Preview" className="h-full w-full object-cover" />
+                          <button type="button" onClick={() => setEditingItem({...editingItem, image: ''})} className="absolute top-2 right-2 p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"><X size={14} /></button>
+                        </div>
+                      )}
+                      <input placeholder="Or enter direct Image URL" className="w-full p-2.5 bg-beige-50 border border-beige-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.image || ''} onChange={e => setEditingItem({...editingItem, image: e.target.value})} required />
+                    </div>
+                    <input placeholder="Tag (e.g. Bestseller)" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.tag || ''} onChange={e => setEditingItem({...editingItem, tag: e.target.value})} />
+                    <select className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.categoryId || ''} onChange={e => setEditingItem({...editingItem, categoryId: e.target.value})} required>
                       {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </>
                 )}
                 {activeTab === 'Carousel' && (
-                  <input placeholder="Image URL" className="w-full p-3 bg-beige-50 border border-beige-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.image} onChange={e => setEditingItem({...editingItem, image: e.target.value})} required />
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-beige-900/60">Carousel Banner Image</label>
+                    <label className="cursor-pointer border-2 border-dashed border-beige-300 hover:border-[#5d4037] bg-beige-50 hover:bg-beige-100/80 rounded-xl p-4 flex flex-col items-center justify-center transition-all text-center group">
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageFileUpload} disabled={isUploadingImage} />
+                      <Upload size={22} className="text-beige-900/50 group-hover:text-[#5d4037] mb-1.5 transition-colors" />
+                      <span className="text-xs font-semibold text-beige-900 group-hover:text-[#5d4037]">
+                        {isUploadingImage ? "Compressing & Uploading..." : "Upload Carousel Image File to Firebase"}
+                      </span>
+                      <span className="text-[10px] text-beige-900/50 mt-0.5">JPG, PNG, WEBP saved directly to Firebase database</span>
+                    </label>
+                    {editingItem.image && (
+                      <div className="relative rounded-xl overflow-hidden border border-beige-200 aspect-video bg-beige-100 max-h-36 flex items-center justify-center">
+                        <img src={editingItem.image} alt="Preview" className="h-full w-full object-cover" />
+                        <button type="button" onClick={() => setEditingItem({...editingItem, image: ''})} className="absolute top-2 right-2 p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"><X size={14} /></button>
+                      </div>
+                    )}
+                    <input placeholder="Or enter direct Image URL" className="w-full p-2.5 bg-beige-50 border border-beige-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-beige-300" value={editingItem.image || ''} onChange={e => setEditingItem({...editingItem, image: e.target.value})} required />
+                  </div>
                 )}
                 <div className="flex justify-end space-x-3 pt-4 border-t border-beige-100 shrink-0">
                   <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-medium text-beige-900/60 hover:text-beige-900">Cancel</button>

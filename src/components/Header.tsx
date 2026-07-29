@@ -13,14 +13,14 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-beige-100/90 backdrop-blur-md border-b border-beige-200">
+    <header className="sticky top-0 z-50 w-full bg-beige-100 border-b border-beige-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Mobile Menu Toggle */}
           <div className="flex md:hidden">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 text-beige-900 hover:bg-beige-200/50 rounded-lg transition-colors" 
+              className="p-2 text-beige-900 bg-beige-200/80 hover:bg-beige-200 border border-beige-300/50 rounded-lg transition-colors shadow-xs" 
               id="mobile-menu-toggle"
               aria-label="Open menu"
             >
@@ -70,7 +70,7 @@ export function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-xs"
+              className="absolute inset-0 bg-black/60"
             />
 
             {/* Menu Content */}
@@ -79,7 +79,7 @@ export function Header() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-4/5 max-w-xs h-full bg-beige-100 p-6 flex flex-col justify-between shadow-2xl border-r border-beige-200"
+              className="relative w-4/5 max-w-xs h-full bg-[#FFF7E6] p-6 flex flex-col justify-between shadow-2xl border-r border-beige-300 opacity-100 z-10"
             >
               <div>
                 <div className="flex items-center justify-between pb-6 border-b border-beige-200">

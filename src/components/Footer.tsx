@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSiteSettings } from "../hooks/useLiveContent";
 
 export function Footer() {
   const settings = useSiteSettings();
+  const [email, setEmail] = useState('');
 
   return (
     <footer className="bg-beige-100 text-beige-900 pt-12 md:pt-24 pb-8 md:pb-12 border-t border-beige-900/10">
@@ -46,14 +48,16 @@ export function Footer() {
           <div className="col-span-1 sm:col-span-2 md:col-span-1">
             <h4 className="text-[10px] sm:text-xs font-medium uppercase tracking-[0.2em] mb-4 sm:mb-8 text-beige-900/80">Newsletter</h4>
             <p className="text-xs sm:text-sm text-beige-900/60 mb-4 sm:mb-6">Join our list for floral inspiration and early access.</p>
-            <div className="flex border-b border-beige-900/20 pb-2">
+            <form onSubmit={(e) => { e.preventDefault(); if (email) { alert("Thank you for joining our newsletter!"); setEmail(''); } }} className="flex border-b border-beige-900/20 pb-2">
               <input 
                 type="email" 
                 placeholder="Email Address" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="bg-transparent border-none text-xs sm:text-sm w-full focus:outline-none placeholder:text-beige-900/30"
               />
-              <button className="text-xs font-medium uppercase tracking-widest hover:text-beige-900/80 transition-colors shrink-0 pl-2" id="newsletter-submit">Join</button>
-            </div>
+              <button type="submit" className="text-xs font-medium uppercase tracking-widest hover:text-beige-900/80 transition-colors shrink-0 pl-2 cursor-pointer" id="newsletter-submit">Join</button>
+            </form>
           </div>
         </div>
 
