@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ChevronRight, ArrowLeft, SlidersHorizontal, Package } from "lucide-react";
+import { ChevronRight, ArrowLeft, SlidersHorizontal, Package, Heart, Sparkles } from "lucide-react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { useCategories, useProducts } from "../hooks/useLiveContent";
@@ -17,11 +17,17 @@ export function CategoryPage() {
   const categories = useCategories();
   const products = useProducts();
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
+  const [likedProducts, setLikedProducts] = useState<Record<string, boolean>>({});
 
   // Scroll to top on mount or route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [categoryId]);
+
+  const toggleLike = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLikedProducts(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const currentCategory = categories.find((c) => c.id === categoryId);
   const rawCategoryProducts = products.filter((p) => p.categoryId === categoryId);
@@ -78,9 +84,15 @@ export function CategoryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
-                <span className="text-[10px] sm:text-xs font-montserrat uppercase tracking-[0.3em] font-semibold text-beige-200/80 mb-3 block">
-                  Curated Collection
-                </span>
+                <motion.span 
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                  className="text-[10px] sm:text-xs font-montserrat uppercase tracking-[0.3em] font-semibold text-beige-200/80 mb-3 inline-flex items-center space-x-1.5"
+                >
+                  <Sparkles size={12} className="text-amber-300" />
+                  <span>Curated Collection</span>
+                  <Sparkles size={12} className="text-amber-300" />
+                </motion.span>
                 <h1 className="text-3xl sm:text-5xl md:text-6xl font-montserrat font-bold text-white tracking-tight mb-4">
                   {currentCategory.name}
                 </h1>
@@ -133,52 +145,79 @@ export function CategoryPage() {
             {/* Products Grid */}
             {categoryProducts.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-                {categoryProducts.map((product, index) => (
-                  <motion.div 
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.5 }}
-                    className="group cursor-pointer w-full"
-                    id={`product-${product.id}`}
-                  >
-                    <div className="relative aspect-square overflow-hidden bg-beige-200 mb-4 sm:mb-6 border-2 border-[#5d4037] rounded-none">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      {product.tag && (
-                        <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
-                          <span className="bg-beige-50/90 backdrop-blur-sm px-2.5 py-1 text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat text-[#5d4037]">
-                            {product.tag}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-1">
-                      <div>
-                        <h4 className="font-montserrat font-semibold text-sm sm:text-base text-beige-900 leading-snug">{product.name}</h4>
-                        <p className="font-montserrat text-beige-900/60 text-xs mt-0.5 line-clamp-1">{product.description || 'Bright & Joyful Blooms'}</p>
+                {categoryProducts.map((product, index) => {
+                  const isLiked = likedProducts[product.id];
+                  return (
+                    <motion.div 
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ y: -8, transition: { type: "spring", stiffness: 350, damping: 22 } }}
+                      transition={{ delay: index * 0.05, duration: 0.5 }}
+                      className="group cursor-pointer w-full"
+                      id={`product-${product.id}`}
+                    >
+                      <div className="relative aspect-square overflow-hidden bg-beige-200 mb-4 sm:mb-6 border-2 border-[#5d4037] rounded-xl shadow-xs group-hover:shadow-lg transition-shadow">
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        {product.tag && (
+                          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+                            <span className="bg-beige-50/90 backdrop-blur-sm px-2.5 py-1 text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat text-[#5d4037] rounded-md border border-beige-300/50">
+                              {product.tag}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Heart Button */}
+                        <button
+                          onClick={(e) => toggleLike(product.id, e)}
+                          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-2 bg-beige-50/90 backdrop-blur-sm rounded-full text-beige-900 hover:text-red-500 shadow-sm transition-all hover:scale-110 cursor-pointer"
+                          aria-label="Add to wishlist"
+                        >
+                          <motion.div
+                            animate={isLiked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Heart 
+                              size={15} 
+                              className={isLiked ? "fill-red-500 text-red-500" : "text-[#5d4037]"} 
+                            />
+                          </motion.div>
+                        </button>
                       </div>
-                      <p className="font-montserrat font-bold text-xs sm:text-base text-[#5d4037] whitespace-nowrap">{formatPrice(product.price)}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                      <button 
-                        className="py-2 px-1 sm:px-2 bg-[#5d4037] text-white text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat hover:bg-[#4a332c] transition-colors rounded-none text-center cursor-pointer"
-                        id={`add-to-cart-${product.id}`}
-                      >
-                        Add to Cart
-                      </button>
-                      <button 
-                        className="py-2 px-1 sm:px-2 bg-transparent border border-[#5d4037] text-[#5d4037] text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat hover:bg-[#5d4037] hover:text-white transition-all rounded-none text-center cursor-pointer"
-                        id={`buy-now-${product.id}`}
-                      >
-                        Buy Now
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
+
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-1">
+                        <div>
+                          <h4 className="font-montserrat font-semibold text-sm sm:text-base text-beige-900 leading-snug group-hover:text-[#5d4037] transition-colors">{product.name}</h4>
+                          <p className="font-montserrat text-beige-900/60 text-xs mt-0.5 line-clamp-1">{product.description || 'Bright & Joyful Blooms'}</p>
+                        </div>
+                        <p className="font-montserrat font-bold text-xs sm:text-base text-[#5d4037] whitespace-nowrap">{formatPrice(product.price)}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        <motion.button 
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.94 }}
+                          className="py-2.5 px-1 sm:px-2 bg-[#5d4037] text-white text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat hover:bg-[#4a332c] transition-colors rounded-lg text-center cursor-pointer shadow-xs"
+                          id={`add-to-cart-${product.id}`}
+                        >
+                          Add to Cart
+                        </motion.button>
+                        <motion.button 
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.94 }}
+                          className="py-2.5 px-1 sm:px-2 bg-transparent border border-[#5d4037] text-[#5d4037] text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat hover:bg-[#5d4037] hover:text-white transition-all rounded-lg text-center cursor-pointer"
+                          id={`buy-now-${product.id}`}
+                        >
+                          Buy Now
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             ) : (
               <div className="py-16 text-center border-2 border-dashed border-beige-300 rounded-2xl bg-beige-50/50">
@@ -187,7 +226,7 @@ export function CategoryPage() {
                 <p className="text-xs font-montserrat text-beige-900/60 max-w-md mx-auto mb-6">
                   We are actively preparing new handcrafted arrangements for this collection.
                 </p>
-                <Link to="/" className="inline-flex items-center space-x-2 bg-[#5d4037] text-white px-5 py-2.5 text-xs font-montserrat font-semibold uppercase tracking-wider rounded-none">
+                <Link to="/" className="inline-flex items-center space-x-2 bg-[#5d4037] text-white px-5 py-2.5 text-xs font-montserrat font-semibold uppercase tracking-wider rounded-lg">
                   <ArrowLeft size={16} />
                   <span>Browse All Collections</span>
                 </Link>
@@ -202,17 +241,18 @@ export function CategoryPage() {
                 </h4>
                 <div className="flex flex-wrap justify-center gap-3">
                   {categories.map((cat) => (
-                    <Link
-                      key={cat.id}
-                      to={`/category/${cat.id}`}
-                      className={`px-4 py-2 text-xs font-montserrat font-semibold uppercase tracking-wider transition-all rounded-md ${
-                        cat.id === categoryId 
-                          ? 'bg-[#5d4037] text-white' 
-                          : 'bg-beige-200/80 hover:bg-beige-300 text-beige-900'
-                      }`}
-                    >
-                      {cat.name}
-                    </Link>
+                    <motion.div key={cat.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Link
+                        to={`/category/${cat.id}`}
+                        className={`px-4 py-2 text-xs font-montserrat font-semibold uppercase tracking-wider transition-all rounded-lg block ${
+                          cat.id === categoryId 
+                            ? 'bg-[#5d4037] text-white shadow-sm' 
+                            : 'bg-beige-200/80 hover:bg-beige-300 text-beige-900'
+                        }`}
+                      >
+                        {cat.name}
+                      </Link>
+                    </motion.div>
                   ))}
                 </div>
               </div>

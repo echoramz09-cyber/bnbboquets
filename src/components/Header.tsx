@@ -22,21 +22,24 @@ export function Header() {
         <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Mobile Menu Toggle */}
           <div className="flex md:hidden">
-            <button 
+            <motion.button 
+              whileTap={{ scale: 0.88 }}
               onClick={() => setIsMobileMenuOpen(true)}
               className="p-2 text-beige-900 bg-beige-200/80 hover:bg-beige-200 border border-beige-300/50 rounded-lg transition-colors shadow-xs cursor-pointer" 
               id="mobile-menu-toggle"
               aria-label="Open menu"
             >
               <Menu size={22} />
-            </button>
+            </motion.button>
           </div>
 
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center justify-center">
-            <Link to="/" className="text-xl sm:text-3xl md:text-5xl font-signature text-beige-900 lowercase inline-block scale-x-90 origin-center truncate max-w-[200px] sm:max-w-none">
-              {settings?.logo || "bright n bliss"} bouquets
-            </Link>
+            <motion.div whileHover={{ scale: 1.05, rotate: -1 }} transition={{ type: "spring", stiffness: 400 }}>
+              <Link to="/" className="text-xl sm:text-3xl md:text-5xl font-signature text-beige-900 lowercase inline-block scale-x-90 origin-center truncate max-w-[200px] sm:max-w-none">
+                {settings?.logo || "bright n bliss"} bouquets
+              </Link>
+            </motion.div>
           </div>
 
           {/* Desktop Navigation */}
@@ -91,18 +94,22 @@ export function Header() {
 
           {/* Action Icons */}
           <div className="flex items-center space-x-3 sm:space-x-6">
-            <button className="p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="search-btn" aria-label="Search">
+            <motion.button whileHover={{ scale: 1.15, rotate: 5 }} whileTap={{ scale: 0.9 }} className="p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="search-btn" aria-label="Search">
               <Search size={18} className="sm:w-5 sm:h-5" />
-            </button>
-            <button className="hidden sm:block p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="wishlist-btn" aria-label="Wishlist">
+            </motion.button>
+            <motion.button whileHover={{ scale: 1.15, rotate: -5 }} whileTap={{ scale: 0.9 }} className="hidden sm:block p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="wishlist-btn" aria-label="Wishlist">
               <Heart size={18} className="sm:w-5 sm:h-5" />
-            </button>
-            <button className="relative p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="cart-btn" aria-label="Cart">
+            </motion.button>
+            <motion.button whileHover={{ scale: 1.15, y: -2 }} whileTap={{ scale: 0.9 }} className="relative p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="cart-btn" aria-label="Cart">
               <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
-              <span className="absolute -top-1 -right-1 bg-[#5d4037] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-sans font-bold">
+              <motion.span 
+                animate={{ scale: [1, 1.2, 1] }} 
+                transition={{ repeat: Infinity, duration: 2.5 }}
+                className="absolute -top-1 -right-1 bg-[#5d4037] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-sans font-bold shadow-xs"
+              >
                 0
-              </span>
-            </button>
+              </motion.span>
+            </motion.button>
           </div>
         </div>
       </div>
