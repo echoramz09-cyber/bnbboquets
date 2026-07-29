@@ -8,12 +8,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { ShoppingBag, Menu, Search, Heart, X, ChevronRight, ChevronDown, Layers, Sparkles, Package, Tag, ArrowRight } from "lucide-react";
 import { useCategories, useProducts, useSiteSettings } from "../hooks/useLiveContent";
+import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/imageUtils";
 
 export function Header() {
   const settings = useSiteSettings();
   const categories = useCategories();
   const products = useProducts();
+  const { cartCount, setIsCartOpen } = useCart();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDesktopCategoriesOpen, setIsDesktopCategoriesOpen] = useState(false);
@@ -162,15 +164,25 @@ export function Header() {
             <motion.button whileHover={{ scale: 1.15, rotate: -5 }} whileTap={{ scale: 0.9 }} className="hidden sm:block p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="wishlist-btn" aria-label="Wishlist">
               <Heart size={18} className="sm:w-5 sm:h-5" />
             </motion.button>
-            <motion.button whileHover={{ scale: 1.15, y: -2 }} whileTap={{ scale: 0.9 }} className="relative p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" id="cart-btn" aria-label="Cart">
+            <motion.button 
+              whileHover={{ scale: 1.15, y: -2 }} 
+              whileTap={{ scale: 0.9 }} 
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-1.5 text-beige-900 hover:text-[#5d4037] transition-colors cursor-pointer" 
+              id="cart-btn" 
+              aria-label="Cart"
+            >
               <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
-              <motion.span 
-                animate={{ scale: [1, 1.2, 1] }} 
-                transition={{ repeat: Infinity, duration: 2.5 }}
-                className="absolute -top-1 -right-1 bg-[#5d4037] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-sans font-bold shadow-xs"
-              >
-                0
-              </motion.span>
+              {cartCount > 0 && (
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [1, 1.25, 1] }} 
+                  transition={{ repeat: Infinity, duration: 2.5 }}
+                  className="absolute -top-1 -right-1 bg-[#5d4037] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-sans font-bold shadow-xs"
+                >
+                  {cartCount}
+                </motion.span>
+              )}
             </motion.button>
           </div>
         </div>

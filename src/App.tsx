@@ -16,6 +16,10 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 import { CategoryPage } from "./pages/CategoryPage";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { ImageCarousel } from "./components/ImageCarousel";
+import { CartProvider } from "./context/CartContext";
+import { CartDrawer } from "./components/CartDrawer";
+import { AddToCartToast } from "./components/AddToCartToast";
+import { WhatsAppNotification } from "./components/WhatsAppNotification";
 
 function LandingPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -51,14 +55,19 @@ function LandingPage() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/category/:categoryId" element={<CategoryPage />} />
-        <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      </Routes>
-    </BrowserRouter>
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/category/:categoryId" element={<CategoryPage />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Routes>
+        <CartDrawer />
+        <AddToCartToast />
+        <WhatsAppNotification />
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 

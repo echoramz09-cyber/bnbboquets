@@ -10,12 +10,14 @@ import { ChevronRight, ArrowLeft, SlidersHorizontal, Package, Heart, Sparkles } 
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { useCategories, useProducts } from "../hooks/useLiveContent";
+import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/imageUtils";
 
 export function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const categories = useCategories();
   const products = useProducts();
+  const { addToCart, buyNowProduct } = useCart();
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
   const [likedProducts, setLikedProducts] = useState<Record<string, boolean>>({});
 
@@ -201,6 +203,10 @@ export function CategoryPage() {
                         <motion.button 
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.94 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product);
+                          }}
                           className="py-2.5 px-1 sm:px-2 bg-[#5d4037] text-white text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat hover:bg-[#4a332c] transition-colors rounded-lg text-center cursor-pointer shadow-xs"
                           id={`add-to-cart-${product.id}`}
                         >
@@ -209,6 +215,10 @@ export function CategoryPage() {
                         <motion.button 
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.94 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            buyNowProduct(product);
+                          }}
                           className="py-2.5 px-1 sm:px-2 bg-transparent border border-[#5d4037] text-[#5d4037] text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold font-montserrat hover:bg-[#5d4037] hover:text-white transition-all rounded-lg text-center cursor-pointer"
                           id={`buy-now-${product.id}`}
                         >

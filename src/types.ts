@@ -43,3 +43,8 @@ export interface CarouselImage {
   image: string;
   order: number;
 }
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
