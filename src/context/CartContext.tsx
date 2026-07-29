@@ -9,6 +9,8 @@ import { Product, CartItem } from "../types";
 interface WhatsAppNotification {
   show: boolean;
   message: string;
+  waUrl: string;
+  orderSummary?: string;
 }
 
 interface CartContextType {
@@ -26,6 +28,7 @@ interface CartContextType {
   setWhatsappNotification: (notif: WhatsAppNotification | null) => void;
   buyNowProduct: (product: Product) => Promise<void>;
   checkoutCartWhatsApp: () => Promise<void>;
+  confirmWhatsAppRedirect: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -124,20 +127,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Clipboard copy failed:", err);
     }
 
-    // Show Notification Alert
-    setWhatsappNotification({
-      show: true,
-      message: "Order details copied to clipboard! Opening WhatsApp... Paste them in DM to send.",
-    });
-
-    setTimeout(() => {
-      setWhatsappNotification(null);
-    }, 6000);
-
-    // Redirect to WhatsApp
     const encodedText = encodeURIComponent(orderText);
     const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
-    window.open(waUrl, "_blank");
+    const summaryStr = items.map(i => `${i.quantity}x ${i.name}`).join(", ");
+
+    // Show Notification Dialog Alert
+    setWhatsappNotification({
+      show: true,
+      message: "Order details copied to clipboard!",
+      waUrl,
+      orderSummary: summaryStr,
+    });
+  };
+
+  const confirmWhatsAppRedirect = () => {
+    if (whatsappNotification && whatsappNotification.waUrl) {
+      window.open(whatsappNotification.waUrl, "_blank");
+    }
+    setWhatsappNotification(null);
   };
 
   // Buy single product directly
@@ -175,6 +182,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setWhatsappNotification,
         buyNowProduct,
         checkoutCartWhatsApp,
+        confirmWhatsAppRedirect,
       }}
     >
       {children}
