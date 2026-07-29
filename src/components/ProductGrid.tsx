@@ -57,22 +57,22 @@ export function ProductGrid() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex justify-between items-start mb-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-1">
                         <div>
-                          <h4 className="font-serif text-lg text-beige-900 mb-1">{product.name}</h4>
-                          <p className="text-beige-900/50 text-sm">{product.description || 'Bright & Joyful Blooms'}</p>
+                          <h4 className="font-serif text-sm sm:text-lg text-beige-900 leading-tight">{product.name}</h4>
+                          <p className="text-beige-900/50 text-xs mt-0.5 line-clamp-1">{product.description || 'Bright & Joyful Blooms'}</p>
                         </div>
-                        <p className="font-sans font-medium text-[#5d4037]">{product.price}</p>
+                        <p className="font-sans font-semibold text-xs sm:text-base text-[#5d4037] whitespace-nowrap">{product.price}</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                         <button 
-                          className="py-2.5 px-2 bg-[#5d4037] text-white text-[10px] uppercase tracking-widest font-medium hover:bg-[#4a332c] transition-colors"
+                          className="py-2 px-1 sm:px-2 bg-[#5d4037] text-white text-[9px] sm:text-[10px] uppercase tracking-wider font-medium hover:bg-[#4a332c] transition-colors rounded-none text-center"
                           id={`add-to-cart-${product.id}`}
                         >
                           Add to Cart
                         </button>
                         <button 
-                          className="py-2.5 px-2 bg-transparent border border-[#5d4037] text-[#5d4037] text-[10px] uppercase tracking-widest font-medium hover:bg-[#5d4037] hover:text-white transition-all"
+                          className="py-2 px-1 sm:px-2 bg-transparent border border-[#5d4037] text-[#5d4037] text-[9px] sm:text-[10px] uppercase tracking-wider font-medium hover:bg-[#5d4037] hover:text-white transition-all rounded-none text-center"
                           id={`buy-now-${product.id}`}
                         >
                           Buy Now

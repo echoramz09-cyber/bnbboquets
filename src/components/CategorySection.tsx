@@ -54,12 +54,12 @@ export function CategorySection() {
               />
               <div className="absolute inset-0 bg-beige-900/25 group-hover:bg-beige-900/35 transition-colors duration-500"></div>
               
-              <div className="relative z-10 text-center p-4">
-                <span className="text-[9px] uppercase tracking-[0.3em] text-beige-50/70 mb-2 drop-shadow-sm font-medium block">Collection</span>
-                <h3 className="text-xl sm:text-3xl md:text-4xl font-serif italic text-beige-50 drop-shadow-lg leading-tight">
+              <div className="relative z-10 text-center p-2 sm:p-4">
+                <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-beige-50/70 mb-1 sm:mb-2 drop-shadow-sm font-medium block">Collection</span>
+                <h3 className="text-base sm:text-2xl md:text-4xl font-serif italic text-beige-50 drop-shadow-lg leading-tight">
                   {category.name}
                 </h3>
-                <div className="mt-4 w-8 h-px bg-beige-50/30 mx-auto"></div>
+                <div className="mt-2 sm:mt-4 w-6 sm:w-8 h-px bg-beige-50/30 mx-auto"></div>
               </div>
             </motion.div>
           ))}
