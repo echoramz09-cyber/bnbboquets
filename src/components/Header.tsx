@@ -55,22 +55,10 @@ export function Header() {
     });
   }, [products, categoryMap, searchQuery]);
 
-  const handleSelectProduct = (productId: string, categoryId?: string) => {
+  const handleSelectProduct = (productId: string) => {
     setIsSearchOpen(false);
     setSearchQuery("");
-    if (categoryId) {
-      navigate(`/category/${categoryId}`);
-      setTimeout(() => {
-        const el = document.getElementById(`product-${productId}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 150);
-    } else {
-      navigate('/');
-      setTimeout(() => {
-        const el = document.getElementById(`product-${productId}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 150);
-    }
+    navigate(`/product/${productId}`);
   };
 
   return (
@@ -454,7 +442,7 @@ export function Header() {
                           return (
                             <div
                               key={product.id}
-                              onClick={() => handleSelectProduct(product.id, product.categoryId)}
+                              onClick={() => handleSelectProduct(product.id)}
                               className="flex items-center space-x-3 p-3 hover:bg-beige-200/50 cursor-pointer transition-colors group"
                             >
                               <img

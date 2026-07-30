@@ -14,6 +14,7 @@ import { Footer } from "./components/Footer";
 import { AdminLogin } from "./pages/AdminLogin";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { CategoryPage } from "./pages/CategoryPage";
+import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { ImageCarousel } from "./components/ImageCarousel";
 import { CartProvider } from "./context/CartContext";
@@ -60,6 +61,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
+          <Route path="/product/:productId" element={<ProductDetailPage />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>

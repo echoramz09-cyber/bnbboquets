@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ChevronRight, ArrowLeft, SlidersHorizontal, Package, Heart, Sparkles } from "lucide-react";
 import { Header } from "../components/Header";
@@ -15,6 +15,7 @@ import { formatPrice } from "../lib/imageUtils";
 
 export function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
+  const navigate = useNavigate();
   const categories = useCategories();
   const products = useProducts();
   const { addToCart, buyNowProduct } = useCart();
@@ -156,6 +157,7 @@ export function CategoryPage() {
                       animate={{ opacity: 1, y: 0 }}
                       whileHover={{ y: -8, transition: { type: "spring", stiffness: 350, damping: 22 } }}
                       transition={{ delay: index * 0.05, duration: 0.5 }}
+                      onClick={() => navigate(`/product/${product.id}`)}
                       className="group cursor-pointer w-full"
                       id={`product-${product.id}`}
                     >

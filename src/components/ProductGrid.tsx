@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Sparkles, Heart } from "lucide-react";
 import { useProducts } from "../hooks/useLiveContent";
@@ -11,6 +12,7 @@ import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/imageUtils";
 
 export function ProductGrid() {
+  const navigate = useNavigate();
   const products = useProducts();
   const { addToCart, buyNowProduct } = useCart();
   const [likedProducts, setLikedProducts] = useState<Record<string, boolean>>({});
@@ -57,6 +59,7 @@ export function ProductGrid() {
                 whileHover={{ y: -8, transition: { type: "spring", stiffness: 350, damping: 22 } }}
                 transition={{ delay: (index % 8) * 0.08, duration: 0.5 }}
                 viewport={{ once: true }}
+                onClick={() => navigate(`/product/${product.id}`)}
                 className="group cursor-pointer w-full"
                 id={`product-${product.id}`}
               >
