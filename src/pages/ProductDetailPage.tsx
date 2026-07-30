@@ -5,11 +5,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag,
   MessageCircle,
   ChevronRight,
+  ChevronLeft,
   Plus,
   Minus,
   ArrowLeft,
@@ -65,8 +66,19 @@ export function ProductDetailPage() {
         ? `${product.image}&auto=format&fit=crop&w=800&q=80`
         : "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1508610048659-a06b669e3321?auto=format&fit=crop&w=800&q=80",
     ];
   }, [product]);
+
+  const handleNextImage = () => {
+    if (galleryImages.length <= 1) return;
+    setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+  };
+
+  const handlePrevImage = () => {
+    if (galleryImages.length <= 1) return;
+    setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -148,14 +160,58 @@ export function ProductDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start mb-16">
           {/* Left Column: Product Image & Gallery */}
           <div className="space-y-4">
-            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-beige-200 border border-beige-300 shadow-sm">
-              <img
-                src={galleryImages[activeImageIndex] || product.image}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-beige-200 border border-beige-300 shadow-sm group">
+              {/* Swipeable Image Container */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeImageIndex}
+                  initial={{ opacity: 0.85, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0.85, x: -20 }}
+                  transition={{ duration: 0.25 }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset, velocity }) => {
+                    const swipeThreshold = 50;
+                    if (offset.x < -swipeThreshold || velocity.x < -300) {
+                      handleNextImage();
+                    } else if (offset.x > swipeThreshold || velocity.x > 300) {
+                      handlePrevImage();
+                    }
+                  }}
+                  className="w-full h-full cursor-grab active:cursor-grabbing select-none"
+                >
+                  <img
+                    src={galleryImages[activeImageIndex] || product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover pointer-events-none"
+                  />
+                </motion.div>
+              </AnimatePresence>
 
-              <div className="absolute top-4 right-4 flex space-x-2">
+              {/* Left/Right Swipe Arrow Buttons */}
+              {galleryImages.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevImage}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-[#5d4037] rounded-full shadow-md transition-all cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-[#5d4037] rounded-full shadow-md transition-all cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
+
+              {/* Wishlist & Share Action Buttons */}
+              <div className="absolute top-4 right-4 flex space-x-2 z-10">
                 <button
                   onClick={() => setIsWishlisted(!isWishlisted)}
                   className="p-2 bg-white/90 backdrop-blur-xs rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
@@ -171,17 +227,33 @@ export function ProductDetailPage() {
                   {copiedLink ? <Check size={18} className="text-emerald-600" /> : <Share2 size={18} className="text-[#5d4037]" />}
                 </button>
               </div>
+
+              {/* Swipe Pagination Dots Indicator */}
+              {galleryImages.length > 1 && (
+                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center space-x-2 z-10">
+                  {galleryImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`h-2 rounded-full transition-all cursor-pointer ${
+                        activeImageIndex === idx ? "w-6 bg-[#5d4037]" : "w-2 bg-white/80 hover:bg-white"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Thumbnail selector */}
             {galleryImages.length > 1 && (
-              <div className="flex space-x-3">
+              <div className="flex space-x-3 overflow-x-auto pb-1">
                 {galleryImages.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                      activeImageIndex === idx ? "border-[#5d4037] scale-105" : "border-beige-300 opacity-60"
+                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                      activeImageIndex === idx ? "border-[#5d4037] scale-105 shadow-xs" : "border-beige-300 opacity-60 hover:opacity-100"
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />

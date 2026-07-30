@@ -88,15 +88,15 @@ export function CategoryPage() {
                 transition={{ duration: 0.6 }}
               >
                 <motion.span 
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                  className="text-[10px] sm:text-xs font-montserrat uppercase tracking-[0.3em] font-semibold text-beige-200/80 mb-3 inline-flex items-center space-x-1.5"
+                  animate={{ scale: [1, 1.03, 1] }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                  className="text-[11px] font-montserrat uppercase tracking-[0.25em] font-bold text-amber-200/90 bg-white/10 px-3 py-1 rounded-full border border-amber-200/20 mb-4 inline-flex items-center space-x-1.5 backdrop-blur-xs"
                 >
                   <Sparkles size={12} className="text-amber-300" />
                   <span>Curated Collection</span>
                   <Sparkles size={12} className="text-amber-300" />
                 </motion.span>
-                <h1 className="text-3xl sm:text-5xl md:text-6xl font-montserrat font-bold text-white tracking-tight mb-4">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl font-montserrat font-extrabold text-white tracking-tight mb-4 leading-tight">
                   {currentCategory.name}
                 </h1>
                 <p className="max-w-2xl mx-auto text-xs sm:text-base font-montserrat text-beige-200/90 leading-relaxed">

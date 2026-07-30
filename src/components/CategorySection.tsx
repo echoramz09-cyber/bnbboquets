@@ -41,15 +41,15 @@ export function CategorySection() {
           className="text-center mb-12 sm:mb-16"
         >
           <motion.span 
-            animate={{ scale: [1, 1.04, 1] }}
-            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-            className="text-[10px] uppercase tracking-[0.4em] font-montserrat text-beige-900/60 font-semibold mb-3 inline-flex items-center space-x-1.5"
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            className="text-[11px] uppercase tracking-[0.25em] font-montserrat text-[#5d4037] font-bold mb-3 inline-flex items-center space-x-1.5 bg-beige-200/50 px-3 py-1 rounded-full border border-beige-300/60"
           >
             <Sparkles size={12} className="text-[#5d4037]" />
             <span>{settings?.hero?.title || "Exquisite Selections"}</span>
             <Sparkles size={12} className="text-[#5d4037]" />
           </motion.span>
-          <h2 className="text-3xl md:text-5xl font-montserrat font-bold text-beige-900 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-montserrat font-extrabold text-beige-900 tracking-tight">
             {settings?.hero?.subtitle || "Shop By Category"}
           </h2>
           <div className="mt-6 flex justify-center">
