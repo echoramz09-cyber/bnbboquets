@@ -163,7 +163,7 @@ export function CategoryPage() {
                     >
                       <div className="relative aspect-square overflow-hidden bg-beige-200 mb-4 sm:mb-6 border-2 border-[#5d4037] rounded-xl shadow-xs group-hover:shadow-lg transition-shadow">
                         <img 
-                          src={product.image} 
+                          src={product.image || "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80"} 
                           alt={product.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />

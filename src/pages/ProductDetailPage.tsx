@@ -60,10 +60,14 @@ export function ProductDetailPage() {
 
   const galleryImages = useMemo(() => {
     if (!product) return [];
+    if (product.images && Array.isArray(product.images) && product.images.filter(Boolean).length > 0) {
+      return product.images.filter((img) => Boolean(img && img.trim())).slice(0, 5);
+    }
+    const primaryImg = product.image || "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80";
     return [
-      product.image,
-      product.image.includes("unsplash")
-        ? `${product.image}&auto=format&fit=crop&w=800&q=80`
+      primaryImg,
+      primaryImg.includes("unsplash")
+        ? `${primaryImg}&auto=format&fit=crop&w=800&q=80`
         : "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1508610048659-a06b669e3321?auto=format&fit=crop&w=800&q=80",
