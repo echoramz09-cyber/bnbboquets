@@ -150,6 +150,7 @@ export function CategoryPage() {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
                 {categoryProducts.map((product, index) => {
                   const isLiked = likedProducts[product.id];
+                  const isPortrait = product.imageAspectRatio === 'portrait';
                   return (
                     <motion.div 
                       key={product.id}
@@ -161,11 +162,13 @@ export function CategoryPage() {
                       className="group cursor-pointer w-full"
                       id={`product-${product.id}`}
                     >
-                      <div className="relative aspect-square overflow-hidden bg-beige-200 mb-4 sm:mb-6 border-2 border-[#5d4037] rounded-xl shadow-xs group-hover:shadow-lg transition-shadow">
+                      <div className={`relative overflow-hidden bg-beige-200 mb-4 sm:mb-6 border-2 border-[#5d4037] rounded-xl shadow-xs group-hover:shadow-lg transition-all ${
+                        isPortrait ? 'aspect-[3/4]' : 'aspect-square'
+                      }`}>
                         <img 
                           src={product.image || "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80"} 
                           alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          className={`w-full h-full ${isPortrait ? 'object-cover sm:object-contain bg-[#faf6f0]' : 'object-cover'} transition-transform duration-700 group-hover:scale-105`}
                         />
                         {product.tag && (
                           <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">

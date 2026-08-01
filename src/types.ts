@@ -34,6 +34,8 @@ export interface Product {
   price: string;
   image: string;
   images?: string[];
+  imageAspectRatio?: 'square' | 'portrait';
+  imageAspectRatios?: ('square' | 'portrait')[];
   tag: string;
   categoryId: string;
   order: number;

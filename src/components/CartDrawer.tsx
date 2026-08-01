@@ -175,9 +175,8 @@ export function CartDrawer() {
                     <span>Subtotal</span>
                     <span className="font-semibold text-beige-900">{formatPrice(cartSubtotal)}</span>
                   </div>
-                  <div className="flex justify-between text-beige-900/70">
-                    <span>Fresh Delivery</span>
-                    <span className="font-semibold text-emerald-700">FREE</span>
+                  <div className="flex justify-between items-center text-beige-900/70 py-1">
+                    <span className="text-[11px] text-amber-900 font-semibold italic">Delivery fee calculated at checkout</span>
                   </div>
                   <div className="pt-2 border-t border-beige-300/60 flex justify-between text-sm sm:text-base font-bold text-beige-900">
                     <span>Total Amount</span>

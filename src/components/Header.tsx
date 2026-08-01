@@ -132,9 +132,9 @@ export function Header() {
             <a href="#about" onClick={(e) => { e.preventDefault(); navigate('/'); setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight / 2, behavior: 'smooth'}); }, 100); }} className="text-xs font-montserrat font-semibold tracking-widest uppercase text-beige-900 hover:text-[#5d4037] transition-colors">
               About
             </a>
-            <a href="#footer" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }} className="text-xs font-montserrat font-semibold tracking-widest uppercase text-beige-900 hover:text-[#5d4037] transition-colors">
+            <Link to="/contact" className="text-xs font-montserrat font-semibold tracking-widest uppercase text-beige-900 hover:text-[#5d4037] transition-colors">
               Contact
-            </a>
+            </Link>
           </nav>
 
           {/* Action Icons */}
@@ -268,14 +268,14 @@ export function Header() {
                     <span>About Us</span>
                     <ChevronRight size={16} className="text-beige-900/40" />
                   </a>
-                  <a 
-                    href="#footer" 
-                    onClick={() => { setIsMobileMenuOpen(false); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }}
+                  <Link 
+                    to="/contact" 
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center justify-between py-2.5 text-xs font-montserrat font-semibold tracking-widest uppercase text-beige-900 border-b border-beige-200/50"
                   >
                     <span>Contact</span>
                     <ChevronRight size={16} className="text-beige-900/40" />
-                  </a>
+                  </Link>
                   <a 
                     href="#" 
                     onClick={() => setIsMobileMenuOpen(false)}

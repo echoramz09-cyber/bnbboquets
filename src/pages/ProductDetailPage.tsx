@@ -137,6 +137,9 @@ export function ProductDetailPage() {
     );
   }
 
+  const activeImageRatio = (product?.imageAspectRatios && product.imageAspectRatios[activeImageIndex]) || product?.imageAspectRatio || 'square';
+  const isActivePortrait = activeImageRatio === 'portrait';
+
   return (
     <div className="min-h-screen bg-beige-100 flex flex-col font-montserrat text-beige-900">
       <Header />
@@ -164,108 +167,117 @@ export function ProductDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start mb-16">
           {/* Left Column: Product Image & Gallery */}
           <div className="space-y-4">
-            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-beige-200 border border-beige-300 shadow-sm group">
-              {/* Swipeable Image Container */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeImageIndex}
-                  initial={{ opacity: 0.85, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0.85, x: -20 }}
-                  transition={{ duration: 0.25 }}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.2}
-                  onDragEnd={(e, { offset, velocity }) => {
-                    const swipeThreshold = 50;
-                    if (offset.x < -swipeThreshold || velocity.x < -300) {
-                      handleNextImage();
-                    } else if (offset.x > swipeThreshold || velocity.x > 300) {
-                      handlePrevImage();
-                    }
-                  }}
-                  className="w-full h-full cursor-grab active:cursor-grabbing select-none"
-                >
-                  <img
-                    src={galleryImages[activeImageIndex] || product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover pointer-events-none"
-                  />
-                </motion.div>
-              </AnimatePresence>
+                <div className={`relative w-full rounded-2xl overflow-hidden bg-beige-200 border border-beige-300 shadow-sm group transition-all ${
+                  isActivePortrait ? 'aspect-[3/4]' : 'aspect-square'
+                }`}>
+                  {/* Swipeable Image Container */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeImageIndex}
+                      initial={{ opacity: 0.85, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0.85, x: -20 }}
+                      transition={{ duration: 0.25 }}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={0.2}
+                      onDragEnd={(e, { offset, velocity }) => {
+                        const swipeThreshold = 50;
+                        if (offset.x < -swipeThreshold || velocity.x < -300) {
+                          handleNextImage();
+                        } else if (offset.x > swipeThreshold || velocity.x > 300) {
+                          handlePrevImage();
+                        }
+                      }}
+                      className="w-full h-full cursor-grab active:cursor-grabbing select-none"
+                    >
+                      <img
+                        src={galleryImages[activeImageIndex] || product.image}
+                        alt={product.name}
+                        className={`w-full h-full ${isActivePortrait ? 'object-contain bg-[#faf6f0]' : 'object-cover'} pointer-events-none`}
+                      />
+                    </motion.div>
+                  </AnimatePresence>
 
-              {/* Left/Right Swipe Arrow Buttons */}
-              {galleryImages.length > 1 && (
-                <>
-                  <button
-                    onClick={handlePrevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-[#5d4037] rounded-full shadow-md transition-all cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
-                  <button
-                    onClick={handleNextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-[#5d4037] rounded-full shadow-md transition-all cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
-                    aria-label="Next image"
-                  >
-                    <ChevronRight size={20} />
-                  </button>
-                </>
-              )}
+                  {/* Left/Right Swipe Arrow Buttons */}
+                  {galleryImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={handlePrevImage}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-[#5d4037] rounded-full shadow-md transition-all cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        onClick={handleNextImage}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-[#5d4037] rounded-full shadow-md transition-all cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-10"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </>
+                  )}
 
-              {/* Wishlist & Share Action Buttons */}
-              <div className="absolute top-4 right-4 flex space-x-2 z-10">
-                <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className="p-2 bg-white/90 backdrop-blur-xs rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                  title="Wishlist"
-                >
-                  <Heart size={18} className={isWishlisted ? "fill-red-500 text-red-500" : "text-[#5d4037]"} />
-                </button>
-                <button
-                  onClick={handleShare}
-                  className="p-2 bg-white/90 backdrop-blur-xs rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer relative"
-                  title="Share"
-                >
-                  {copiedLink ? <Check size={18} className="text-emerald-600" /> : <Share2 size={18} className="text-[#5d4037]" />}
-                </button>
-              </div>
-
-              {/* Swipe Pagination Dots Indicator */}
-              {galleryImages.length > 1 && (
-                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center space-x-2 z-10">
-                  {galleryImages.map((_, idx) => (
+                  {/* Wishlist & Share Action Buttons */}
+                  <div className="absolute top-4 right-4 flex space-x-2 z-10">
                     <button
-                      key={idx}
-                      onClick={() => setActiveImageIndex(idx)}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${
-                        activeImageIndex === idx ? "w-6 bg-[#5d4037]" : "w-2 bg-white/80 hover:bg-white"
-                      }`}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+                      onClick={() => setIsWishlisted(!isWishlisted)}
+                      className="p-2 bg-white/90 backdrop-blur-xs rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                      title="Wishlist"
+                    >
+                      <Heart size={18} className={isWishlisted ? "fill-red-500 text-red-500" : "text-[#5d4037]"} />
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="p-2 bg-white/90 backdrop-blur-xs rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer relative"
+                      title="Share"
+                    >
+                      {copiedLink ? <Check size={18} className="text-emerald-600" /> : <Share2 size={18} className="text-[#5d4037]" />}
+                    </button>
+                  </div>
 
-            {/* Thumbnail selector */}
-            {galleryImages.length > 1 && (
-              <div className="flex space-x-3 overflow-x-auto pb-1">
-                {galleryImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImageIndex(idx)}
-                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
-                      activeImageIndex === idx ? "border-[#5d4037] scale-105 shadow-xs" : "border-beige-300 opacity-60 hover:opacity-100"
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
+                  {/* Swipe Pagination Dots Indicator */}
+                  {galleryImages.length > 1 && (
+                    <div className="absolute bottom-3 inset-x-0 flex items-center justify-center space-x-2 z-10">
+                      {galleryImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveImageIndex(idx)}
+                          className={`h-2 rounded-full transition-all cursor-pointer ${
+                            activeImageIndex === idx ? "w-6 bg-[#5d4037]" : "w-2 bg-white/80 hover:bg-white"
+                          }`}
+                          aria-label={`Go to slide ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Thumbnail selector */}
+                {galleryImages.length > 1 && (
+                  <div className="flex space-x-3 overflow-x-auto pb-1">
+                    {galleryImages.map((img, idx) => {
+                      const thumbRatio = (product.imageAspectRatios && product.imageAspectRatios[idx]) || product.imageAspectRatio || 'square';
+                      const isThumbPortrait = thumbRatio === 'portrait';
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveImageIndex(idx)}
+                          className={`relative w-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                            isThumbPortrait ? 'aspect-[3/4]' : 'aspect-square'
+                          } ${
+                            activeImageIndex === idx ? "border-[#5d4037] ring-2 ring-[#5d4037]/20 scale-105" : "border-beige-300 opacity-70 hover:opacity-100"
+                          }`}
+                        >
+                          <img src={img} alt={`${product.name} ${idx + 1}`} className={`w-full h-full ${isThumbPortrait ? 'object-contain bg-[#faf6f0]' : 'object-cover'}`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
           {/* Right Column: Information & Actions */}
           <div className="space-y-6">

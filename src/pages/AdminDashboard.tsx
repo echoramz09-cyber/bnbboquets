@@ -9,7 +9,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   LayoutDashboard, LogOut, Package, Image as ImageIcon, 
   Settings, Menu, X, Plus, Trash2, Save, Edit2, Upload, ArrowLeft,
-  Search, ImageOff, CheckCircle2, Filter, Eye, AlertCircle
+  Search, ImageOff, CheckCircle2, Filter, Eye, AlertCircle,
+  Maximize2, Crop, RectangleVertical, Square
 } from 'lucide-react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { 
@@ -144,6 +145,8 @@ export function AdminDashboard() {
         price: '',
         image: '',
         images: ['', '', '', '', ''],
+        imageAspectRatio: 'square',
+        imageAspectRatios: ['square', 'square', 'square', 'square', 'square'],
         tag: 'New',
         categoryId: categories[0]?.id || '',
         order: products.length + 1
@@ -155,6 +158,14 @@ export function AdminDashboard() {
       while (productImages.length < 5) {
         productImages.push('');
       }
+
+      const defaultRatios = prod.imageAspectRatios && Array.isArray(prod.imageAspectRatios)
+        ? [...prod.imageAspectRatios]
+        : [];
+      while (defaultRatios.length < 5) {
+        defaultRatios.push(prod.imageAspectRatio || 'square');
+      }
+
       setEditingItem({
         name: '',
         description: '',
@@ -162,11 +173,27 @@ export function AdminDashboard() {
         image: '',
         tag: '',
         categoryId: categories[0]?.id || '',
+        imageAspectRatio: prod.imageAspectRatio || 'square',
         ...prod,
-        images: productImages.slice(0, 5)
+        images: productImages.slice(0, 5),
+        imageAspectRatios: defaultRatios.slice(0, 5)
       });
     }
     setIsModalOpen(true);
+  };
+
+  const updateProductImageSlotRatio = (index: number, ratio: 'square' | 'portrait') => {
+    setEditingItem((prev: any) => {
+      if (!prev) return null;
+      const currentRatios = Array.isArray(prev.imageAspectRatios) ? [...prev.imageAspectRatios] : ['square', 'square', 'square', 'square', 'square'];
+      while (currentRatios.length <= index) {
+        currentRatios.push('square');
+      }
+      currentRatios[index] = ratio;
+      // also update global imageAspectRatio if it's the main image slot (index 0)
+      const mainRatio = index === 0 ? ratio : (prev.imageAspectRatio || currentRatios[0] || 'square');
+      return { ...prev, imageAspectRatios: currentRatios, imageAspectRatio: mainRatio };
+    });
   };
 
   const handleProductImageSlotUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,7 +212,7 @@ export function AdminDashboard() {
         const mainImg = currentImages.find((img: string) => Boolean(img && img.trim())) || '';
         return { ...prev, images: currentImages, image: mainImg };
       });
-      showToast(`Product Image #${index + 1} uploaded!`);
+      showToast(`Product Image #${index + 1} uploaded! Select shape below.`);
     } catch (err) {
       console.error("Failed to compress image:", err);
       alert("Failed to process image file. Please try again.");
@@ -243,12 +270,23 @@ export function AdminDashboard() {
         data.price = formatPrice(data.price);
       }
       const rawImages = Array.isArray(data.images) ? data.images : (data.image ? [data.image] : []);
-      const cleanImages = rawImages
-        .map((img: string) => (img || '').trim())
-        .filter((img: string) => img.length > 0)
-        .slice(0, 5);
+      const rawRatios = Array.isArray(data.imageAspectRatios) ? data.imageAspectRatios : [];
+      
+      const cleanImages: string[] = [];
+      const cleanRatios: ('square' | 'portrait')[] = [];
+
+      rawImages.forEach((img: string, idx: number) => {
+        const trimmed = (img || '').trim();
+        if (trimmed.length > 0 && cleanImages.length < 5) {
+          cleanImages.push(trimmed);
+          cleanRatios.push(rawRatios[idx] || 'square');
+        }
+      });
+
       data.images = cleanImages;
+      data.imageAspectRatios = cleanRatios;
       data.image = cleanImages[0] || data.image || "";
+      data.imageAspectRatio = cleanRatios[0] || data.imageAspectRatio || 'square';
     }
     const collectionName = activeTab.toLowerCase() === 'carousel' ? 'carousel' : activeTab.toLowerCase();
     
@@ -695,11 +733,16 @@ export function AdminDashboard() {
 
                       {/* Card Actions Bar */}
                       <div className="flex items-center justify-between pt-2 border-t border-beige-100 gap-1">
-                        <span className="text-[10px] font-bold text-beige-900/50">
-                          {prod.images && prod.images.filter(Boolean).length > 0 
-                            ? `${prod.images.filter(Boolean).length} image(s)` 
-                            : (prod.image ? '1 image' : 'No image')}
-                        </span>
+                        <div className="flex items-center space-x-1.5 flex-wrap">
+                          <span className="text-[10px] font-bold text-beige-900/50">
+                            {prod.images && prod.images.filter(Boolean).length > 0 
+                              ? `${prod.images.filter(Boolean).length} image(s)` 
+                              : (prod.image ? '1 image' : 'No image')}
+                          </span>
+                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-900">
+                            {prod.imageAspectRatio === 'portrait' ? 'Portrait 3:4' : 'Square 1:1'}
+                          </span>
+                        </div>
                         <div className="flex space-x-1">
                           <button
                             onClick={() => openEditProductModal(prod)}
@@ -749,11 +792,16 @@ export function AdminDashboard() {
                               </div>
                               <div>
                                 <span className="font-bold text-sm text-beige-900 block">{prod.name}</span>
-                                {prod.tag && (
-                                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#5d4037] bg-beige-100 px-2 py-0.5 rounded mt-0.5">
-                                    {prod.tag}
+                                <div className="flex items-center space-x-1.5 mt-0.5">
+                                  {prod.tag && (
+                                    <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#5d4037] bg-beige-100 px-2 py-0.5 rounded">
+                                      {prod.tag}
+                                    </span>
+                                  )}
+                                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                                    {prod.imageAspectRatio === 'portrait' ? 'Portrait (3:4)' : 'Square (1:1)'}
                                   </span>
-                                )}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -1019,16 +1067,27 @@ export function AdminDashboard() {
                         </span>
                       </div>
 
-                      <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                      <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                         {[0, 1, 2, 3, 4].map((slotIdx) => {
                           const currentImages = Array.isArray(editingItem.images) ? editingItem.images : (editingItem.image ? [editingItem.image] : []);
+                          const currentRatios = Array.isArray(editingItem.imageAspectRatios) ? editingItem.imageAspectRatios : [];
                           const slotVal = currentImages[slotIdx] || '';
+                          const slotRatio = currentRatios[slotIdx] || editingItem.imageAspectRatio || 'square';
+                          const isSlotPortrait = slotRatio === 'portrait';
+
                           return (
-                            <div key={slotIdx} className="p-2.5 bg-beige-50 rounded-xl border border-beige-200 space-y-2">
+                            <div key={slotIdx} className="p-3 bg-beige-50 rounded-xl border border-beige-200 space-y-2">
                               <div className="flex items-center justify-between">
-                                <span className="font-bold text-[11px] text-[#5d4037]">
-                                  Image #{slotIdx + 1} {slotIdx === 0 ? '(Main Cover)' : ''}
-                                </span>
+                                <div className="flex items-center space-x-2">
+                                  <span className="font-bold text-xs text-[#5d4037]">
+                                    Image #{slotIdx + 1} {slotIdx === 0 ? '(Main Cover)' : ''}
+                                  </span>
+                                  <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded border ${
+                                    isSlotPortrait ? 'bg-amber-100 text-amber-900 border-amber-200' : 'bg-beige-200 text-beige-900 border-beige-300'
+                                  }`}>
+                                    {isSlotPortrait ? 'Portrait 3:4' : 'Square 1:1'}
+                                  </span>
+                                </div>
                                 {slotVal && (
                                   <button
                                     type="button"
@@ -1044,8 +1103,10 @@ export function AdminDashboard() {
 
                               <div className="flex items-center space-x-3">
                                 {slotVal ? (
-                                  <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-beige-300 bg-beige-200 shrink-0">
-                                    <img src={slotVal} alt={`Slot ${slotIdx + 1}`} className="w-full h-full object-cover" />
+                                  <div className={`relative w-14 rounded-lg overflow-hidden border border-beige-300 bg-beige-200 shrink-0 ${
+                                    isSlotPortrait ? 'aspect-[3/4]' : 'aspect-square'
+                                  }`}>
+                                    <img src={slotVal} alt={`Slot ${slotIdx + 1}`} className={`w-full h-full ${isSlotPortrait ? 'object-contain bg-[#faf6f0]' : 'object-cover'}`} />
                                   </div>
                                 ) : (
                                   <div className="w-14 h-14 rounded-lg border border-dashed border-beige-300 bg-white flex flex-col items-center justify-center shrink-0 text-beige-900/40">
@@ -1055,28 +1116,123 @@ export function AdminDashboard() {
                                 )}
 
                                 <div className="flex-grow space-y-1.5 min-w-0">
-                                  <label className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-white border border-beige-300 hover:bg-beige-100 rounded-lg text-[11px] font-bold text-beige-900 cursor-pointer shadow-2xs">
+                                  <div className="flex items-center space-x-1.5">
+                                    <label className="inline-flex items-center space-x-1 px-2 py-1 bg-white border border-beige-300 hover:bg-beige-100 rounded-lg text-[10px] font-bold text-beige-900 cursor-pointer shadow-2xs shrink-0">
+                                      <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        className="hidden" 
+                                        onChange={(e) => handleProductImageSlotUpload(slotIdx, e)} 
+                                        disabled={isUploadingImage} 
+                                      />
+                                      <Upload size={11} />
+                                      <span>{slotVal ? "Replace" : "Upload"}</span>
+                                    </label>
                                     <input 
-                                      type="file" 
-                                      accept="image/*" 
-                                      className="hidden" 
-                                      onChange={(e) => handleProductImageSlotUpload(slotIdx, e)} 
-                                      disabled={isUploadingImage} 
+                                      placeholder="Or paste direct Image URL" 
+                                      className="flex-grow min-w-0 p-1 bg-white border border-beige-300 rounded-lg text-[10px] font-medium text-beige-900 focus:outline-none focus:border-[#5d4037]" 
+                                      value={slotVal} 
+                                      onChange={(e) => updateProductImageSlotUrl(slotIdx, e.target.value)} 
                                     />
-                                    <Upload size={12} />
-                                    <span>{slotVal ? "Replace File" : "Upload Image"}</span>
-                                  </label>
-                                  <input 
-                                    placeholder="Or paste direct Image URL" 
-                                    className="w-full p-1.5 bg-white border border-beige-300 rounded-lg text-[11px] font-medium text-beige-900 focus:outline-none focus:border-[#5d4037]" 
-                                    value={slotVal} 
-                                    onChange={(e) => updateProductImageSlotUrl(slotIdx, e.target.value)} 
-                                  />
+                                  </div>
+
+                                  {/* Individual Image Shape Selector */}
+                                  <div className="flex items-center space-x-2 pt-0.5">
+                                    <span className="text-[10px] font-bold text-beige-900/70">Shape:</span>
+                                    <div className="flex items-center space-x-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => updateProductImageSlotRatio(slotIdx, 'square')}
+                                        className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${
+                                          !isSlotPortrait
+                                            ? 'bg-[#5d4037] text-white shadow-2xs'
+                                            : 'bg-white text-beige-900 border border-beige-300 hover:bg-beige-100'
+                                        }`}
+                                      >
+                                        <Square size={10} />
+                                        <span>Square (1:1)</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => updateProductImageSlotRatio(slotIdx, 'portrait')}
+                                        className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${
+                                          isSlotPortrait
+                                            ? 'bg-[#5d4037] text-white shadow-2xs'
+                                            : 'bg-white text-beige-900 border border-beige-300 hover:bg-beige-100'
+                                        }`}
+                                      >
+                                        <RectangleVertical size={10} />
+                                        <span>Portrait (3:4)</span>
+                                      </button>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           );
                         })}
+                      </div>
+
+                      {/* Image Display Shape (Aspect Ratio) Option */}
+                      <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-xl space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <label className="font-bold text-beige-900 text-xs flex items-center space-x-1.5">
+                            <Maximize2 size={14} className="text-[#5d4037]" />
+                            <span>Image Display Shape / Aspect Ratio</span>
+                          </label>
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#5d4037] bg-white px-2 py-0.5 rounded-md border border-amber-200 shadow-2xs">
+                            {(editingItem.imageAspectRatio || 'square') === 'portrait' ? 'Portrait (3:4)' : 'Square (1:1)'}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-beige-900/75 leading-relaxed">
+                          Choose <strong>Portrait (3:4)</strong> if your uploaded photos are vertical or long so they display fully in your store without awkward cropping. Choose <strong>Square (1:1)</strong> for standard square photos.
+                        </p>
+                        
+                        <div className="grid grid-cols-2 gap-2.5 pt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => setEditingItem({ ...editingItem, imageAspectRatio: 'square' })}
+                            className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                              (editingItem.imageAspectRatio || 'square') === 'square'
+                                ? 'bg-[#5d4037] text-white border-[#5d4037] shadow-xs'
+                                : 'bg-white text-beige-900 border-beige-300 hover:bg-beige-100'
+                            }`}
+                          >
+                            <Square size={15} />
+                            <span>Square (1:1)</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setEditingItem({ ...editingItem, imageAspectRatio: 'portrait' })}
+                            className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                              editingItem.imageAspectRatio === 'portrait'
+                                ? 'bg-[#5d4037] text-white border-[#5d4037] shadow-xs'
+                                : 'bg-white text-beige-900 border-beige-300 hover:bg-beige-100'
+                            }`}
+                          >
+                            <RectangleVertical size={15} />
+                            <span>Portrait (3:4)</span>
+                          </button>
+                        </div>
+
+                        {/* Live Store Preview Box */}
+                        {(editingItem.image || (editingItem.images && editingItem.images.find(Boolean))) && (
+                          <div className="pt-2 border-t border-amber-200/60 flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-beige-900/70 block mb-1.5 self-start">
+                              Store Front Display Preview ({editingItem.imageAspectRatio === 'portrait' ? 'Portrait 3:4' : 'Square 1:1'}):
+                            </span>
+                            <div className={`w-36 rounded-xl overflow-hidden border-2 border-[#5d4037] bg-white transition-all shadow-xs ${
+                              editingItem.imageAspectRatio === 'portrait' ? 'aspect-[3/4]' : 'aspect-square'
+                            }`}>
+                              <img
+                                src={editingItem.image || (editingItem.images && editingItem.images.find(Boolean))}
+                                alt="Store preview"
+                                className={`w-full h-full ${editingItem.imageAspectRatio === 'portrait' ? 'object-contain bg-[#faf6f0]' : 'object-cover'}`}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </>
