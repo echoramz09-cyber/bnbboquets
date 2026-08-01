@@ -137,6 +137,7 @@ export function AdminDashboard() {
   };
 
   const openEditProductModal = (prod?: Product) => {
+    setActiveTab('Products');
     if (!prod) {
       setEditingItem({
         id: '',
@@ -148,7 +149,7 @@ export function AdminDashboard() {
         imageAspectRatio: 'square',
         imageAspectRatios: ['square', 'square', 'square', 'square', 'square'],
         tag: 'New',
-        categoryId: categories[0]?.id || '',
+        categoryId: categories[0]?.id || 'general',
         order: products.length + 1
       });
     } else {
@@ -172,7 +173,7 @@ export function AdminDashboard() {
         price: '',
         image: '',
         tag: '',
-        categoryId: categories[0]?.id || '',
+        categoryId: categories[0]?.id || 'general',
         imageAspectRatio: prod.imageAspectRatio || 'square',
         ...prod,
         images: productImages.slice(0, 5),
@@ -264,11 +265,16 @@ export function AdminDashboard() {
 
   const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editingItem) return;
     const data = { ...editingItem };
-    if (activeTab === 'Products') {
+    const currentTab = activeTab === 'Overview' ? 'Products' : activeTab;
+
+    if (currentTab === 'Products') {
       if (data.price) {
         data.price = formatPrice(data.price);
       }
+      data.categoryId = data.categoryId || categories[0]?.id || 'general';
+
       const rawImages = Array.isArray(data.images) ? data.images : (data.image ? [data.image] : []);
       const rawRatios = Array.isArray(data.imageAspectRatios) ? data.imageAspectRatios : [];
       
@@ -288,19 +294,19 @@ export function AdminDashboard() {
       data.image = cleanImages[0] || data.image || "";
       data.imageAspectRatio = cleanRatios[0] || data.imageAspectRatio || 'square';
     }
-    const collectionName = activeTab.toLowerCase() === 'carousel' ? 'carousel' : activeTab.toLowerCase();
+    const collectionName = currentTab.toLowerCase() === 'carousel' ? 'carousel' : currentTab.toLowerCase();
     
     if (data.id && !data.id.startsWith('new-')) {
       const { id, ...updateData } = data;
       await updateDoc(doc(db, collectionName, id), updateData);
-      showToast(`${activeTab.slice(0, -1)} updated successfully!`);
+      showToast(`${currentTab.slice(0, -1)} updated successfully!`);
     } else {
       const { id, ...newData } = data;
       await addDoc(collection(db, collectionName), {
         ...newData,
-        order: (activeTab === 'Products' ? products : activeTab === 'Collections' ? categories : carousel).length + 1
+        order: (currentTab === 'Products' ? products : currentTab === 'Collections' ? categories : carousel).length + 1
       });
-      showToast(`New ${activeTab.slice(0, -1)} added successfully!`);
+      showToast(`New ${currentTab.slice(0, -1)} added successfully!`);
     }
     setIsModalOpen(false);
     setEditingItem(null);
@@ -700,10 +706,17 @@ export function AdminDashboard() {
 
             {/* Products Card & Table Views */}
             {filteredProducts.length === 0 ? (
-              <div className="bg-white p-12 rounded-2xl border border-beige-200 text-center space-y-2">
+              <div className="bg-white p-12 rounded-2xl border border-beige-200 text-center space-y-3">
                 <Package size={40} className="mx-auto text-beige-900/30 mb-2" />
                 <h4 className="font-bold text-sm text-beige-900">No Products Found</h4>
-                <p className="text-xs text-beige-900/60">Try adjusting your search query or filter selection.</p>
+                <p className="text-xs text-beige-900/60 max-w-xs mx-auto">Your catalog is currently empty or no items match your search.</p>
+                <button 
+                  onClick={() => openEditProductModal()} 
+                  className="inline-flex items-center space-x-2 px-4 py-2.5 bg-[#5d4037] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-[#4a332c] transition-colors cursor-pointer"
+                >
+                  <Plus size={16} />
+                  <span>Add New Product</span>
+                </button>
               </div>
             ) : (
               <>
@@ -960,7 +973,9 @@ export function AdminDashboard() {
               <div className="p-4 sm:p-5 border-b border-beige-200 flex justify-between items-center shrink-0 bg-[#FFF7E6]">
                 <div>
                   <h3 className="font-bold text-base text-beige-900">
-                    {editingItem.id ? `Edit ${activeTab.slice(0, -1)}` : `Add New ${activeTab.slice(0, -1)}`}
+                    {editingItem.id 
+                      ? `Edit ${activeTab === 'Products' ? 'Product' : activeTab === 'Collections' ? 'Collection' : activeTab === 'Carousel' ? 'Slide' : activeTab}` 
+                      : `Add New ${activeTab === 'Products' ? 'Product' : activeTab === 'Collections' ? 'Collection' : activeTab === 'Carousel' ? 'Slide' : activeTab}`}
                   </h3>
                   <p className="text-[11px] text-beige-900/60">Fill in the fields below and click Save Changes</p>
                 </div>
@@ -1042,7 +1057,11 @@ export function AdminDashboard() {
                       <div className="space-y-1">
                         <label className="font-bold text-beige-900">Category *</label>
                         <select className="w-full p-2.5 bg-beige-50 border border-beige-300 rounded-xl font-semibold text-beige-900 focus:outline-none focus:border-[#5d4037]" value={editingItem.categoryId || ''} onChange={e => setEditingItem({...editingItem, categoryId: e.target.value})} required>
-                          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          {categories.length > 0 ? (
+                            categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)
+                          ) : (
+                            <option value="general">General Flowers</option>
+                          )}
                         </select>
                       </div>
                     </div>
