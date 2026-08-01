@@ -20,6 +20,7 @@ import {
 import { auth, db } from '../lib/firebase';
 import { Category, Product, CarouselImage, SiteSettings } from '../types';
 import { compressImageFile, formatPrice } from '../lib/imageUtils';
+import { ImageAdjusterModal } from '../components/ImageAdjusterModal';
 
 export function AdminDashboard() {
   const navigate = useNavigate();
@@ -48,6 +49,19 @@ export function AdminDashboard() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  // Interactive Image Adjuster / Cropper State
+  const [cropperState, setCropperState] = useState<{
+    isOpen: boolean;
+    imageUrl: string;
+    initialRatio: 'square' | 'portrait';
+    onSaveCallback: (croppedDataUrl: string, ratio: 'square' | 'portrait') => void;
+  }>({
+    isOpen: false,
+    imageUrl: '',
+    initialRatio: 'square',
+    onSaveCallback: () => {}
+  });
 
   // Deletion Confirmation Modal state
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name?: string; type: 'Products' | 'Collections' | 'Carousel' } | null>(null);
@@ -203,23 +217,78 @@ export function AdminDashboard() {
     setIsUploadingImage(true);
     try {
       const dataUrl = await compressImageFile(file);
-      setEditingItem((prev: any) => {
-        if (!prev) return null;
-        const currentImages = Array.isArray(prev.images) ? [...prev.images] : (prev.image ? [prev.image] : []);
-        while (currentImages.length <= index) {
-          currentImages.push('');
+      const currentRatios = Array.isArray(editingItem?.imageAspectRatios) ? editingItem.imageAspectRatios : [];
+      const slotRatio = (currentRatios[index] as 'square' | 'portrait') || editingItem?.imageAspectRatio || 'square';
+
+      // Open interactive adjuster modal for this uploaded image
+      setCropperState({
+        isOpen: true,
+        imageUrl: dataUrl,
+        initialRatio: slotRatio,
+        onSaveCallback: (croppedDataUrl, newRatio) => {
+          setEditingItem((prev: any) => {
+            if (!prev) return null;
+            const currentImages = Array.isArray(prev.images) ? [...prev.images] : (prev.image ? [prev.image] : []);
+            while (currentImages.length <= index) {
+              currentImages.push('');
+            }
+            currentImages[index] = croppedDataUrl;
+
+            const updatedRatios = Array.isArray(prev.imageAspectRatios) ? [...prev.imageAspectRatios] : ['square', 'square', 'square', 'square', 'square'];
+            while (updatedRatios.length <= index) {
+              updatedRatios.push('square');
+            }
+            updatedRatios[index] = newRatio;
+
+            const mainImg = currentImages.find((img: string) => Boolean(img && img.trim())) || '';
+            const mainRatio = index === 0 ? newRatio : (prev.imageAspectRatio || updatedRatios[0] || 'square');
+
+            return { ...prev, images: currentImages, imageAspectRatios: updatedRatios, image: mainImg, imageAspectRatio: mainRatio };
+          });
+          showToast(`Product Image #${index + 1} cropped & fitted!`);
         }
-        currentImages[index] = dataUrl;
-        const mainImg = currentImages.find((img: string) => Boolean(img && img.trim())) || '';
-        return { ...prev, images: currentImages, image: mainImg };
       });
-      showToast(`Product Image #${index + 1} uploaded! Select shape below.`);
     } catch (err) {
-      console.error("Failed to compress image:", err);
+      console.error("Failed to process image file:", err);
       alert("Failed to process image file. Please try again.");
     } finally {
       setIsUploadingImage(false);
+      e.target.value = '';
     }
+  };
+
+  const openCropperForProductSlot = (index: number, url: string) => {
+    if (!url) return;
+    const currentRatios = Array.isArray(editingItem?.imageAspectRatios) ? editingItem.imageAspectRatios : [];
+    const slotRatio = (currentRatios[index] as 'square' | 'portrait') || editingItem?.imageAspectRatio || 'square';
+
+    setCropperState({
+      isOpen: true,
+      imageUrl: url,
+      initialRatio: slotRatio,
+      onSaveCallback: (croppedDataUrl, newRatio) => {
+        setEditingItem((prev: any) => {
+          if (!prev) return null;
+          const currentImages = Array.isArray(prev.images) ? [...prev.images] : (prev.image ? [prev.image] : []);
+          while (currentImages.length <= index) {
+            currentImages.push('');
+          }
+          currentImages[index] = croppedDataUrl;
+
+          const updatedRatios = Array.isArray(prev.imageAspectRatios) ? [...prev.imageAspectRatios] : ['square', 'square', 'square', 'square', 'square'];
+          while (updatedRatios.length <= index) {
+            updatedRatios.push('square');
+          }
+          updatedRatios[index] = newRatio;
+
+          const mainImg = currentImages.find((img: string) => Boolean(img && img.trim())) || '';
+          const mainRatio = index === 0 ? newRatio : (prev.imageAspectRatio || updatedRatios[0] || 'square');
+
+          return { ...prev, images: currentImages, imageAspectRatios: updatedRatios, image: mainImg, imageAspectRatio: mainRatio };
+        });
+        showToast(`Product Image #${index + 1} adjusted & saved!`);
+      }
+    });
   };
 
   const updateProductImageSlotUrl = (index: number, url: string) => {
@@ -253,14 +322,39 @@ export function AdminDashboard() {
     setIsUploadingImage(true);
     try {
       const dataUrl = await compressImageFile(file);
-      setEditingItem((prev: any) => ({ ...prev, image: dataUrl }));
-      showToast("Image uploaded to item successfully!");
+      const initialRatio = editingItem?.imageAspectRatio || 'square';
+
+      setCropperState({
+        isOpen: true,
+        imageUrl: dataUrl,
+        initialRatio: initialRatio,
+        onSaveCallback: (croppedDataUrl, newRatio) => {
+          setEditingItem((prev: any) => ({ ...prev, image: croppedDataUrl, imageAspectRatio: newRatio }));
+          showToast("Image cropped & updated!");
+        }
+      });
     } catch (err) {
-      console.error("Failed to compress image:", err);
+      console.error("Failed to process image file:", err);
       alert("Failed to process image file. Please try again.");
     } finally {
       setIsUploadingImage(false);
+      e.target.value = '';
     }
+  };
+
+  const openCropperForSingleImage = (url: string) => {
+    if (!url) return;
+    const initialRatio = editingItem?.imageAspectRatio || 'square';
+
+    setCropperState({
+      isOpen: true,
+      imageUrl: url,
+      initialRatio: initialRatio,
+      onSaveCallback: (croppedDataUrl, newRatio) => {
+        setEditingItem((prev: any) => ({ ...prev, image: croppedDataUrl, imageAspectRatio: newRatio }));
+        showToast("Image adjusted & updated!");
+      }
+    });
   };
 
   const handleSaveItem = async (e: React.FormEvent) => {
@@ -1020,16 +1114,26 @@ export function AdminDashboard() {
                       </label>
 
                       {editingItem.image ? (
-                        <div className="relative rounded-xl overflow-hidden border border-beige-300 aspect-video bg-beige-100 max-h-36 flex items-center justify-center">
+                        <div className="relative rounded-xl overflow-hidden border border-beige-300 aspect-video bg-beige-100 max-h-36 flex items-center justify-center group">
                           <img src={editingItem.image} alt="Preview" className="h-full w-full object-cover" />
-                          <button 
-                            type="button" 
-                            onClick={() => setEditingItem({...editingItem, image: ''})} 
-                            className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-md cursor-pointer"
-                            title="Remove image"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => openCropperForSingleImage(editingItem.image)}
+                              className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold flex items-center space-x-1 shadow-md cursor-pointer transition-colors"
+                            >
+                              <Crop size={12} />
+                              <span>Adjust & Fit</span>
+                            </button>
+                            <button 
+                              type="button" 
+                              onClick={() => setEditingItem({...editingItem, image: ''})} 
+                              className="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md cursor-pointer"
+                              title="Remove image"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <div className="p-3 bg-beige-100 rounded-xl text-center text-beige-900/50 text-[11px] font-semibold">
@@ -1147,6 +1251,17 @@ export function AdminDashboard() {
                                       <Upload size={11} />
                                       <span>{slotVal ? "Replace" : "Upload"}</span>
                                     </label>
+                                    {slotVal && (
+                                      <button
+                                        type="button"
+                                        onClick={() => openCropperForProductSlot(slotIdx, slotVal)}
+                                        className="inline-flex items-center space-x-1 px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg text-[10px] font-bold cursor-pointer shadow-2xs shrink-0 transition-colors"
+                                        title="Drag, zoom, and adjust position"
+                                      >
+                                        <Crop size={11} />
+                                        <span>Adjust & Fit</span>
+                                      </button>
+                                    )}
                                     <input 
                                       placeholder="Or paste direct Image URL" 
                                       className="flex-grow min-w-0 p-1 bg-white border border-beige-300 rounded-lg text-[10px] font-medium text-beige-900 focus:outline-none focus:border-[#5d4037]" 
@@ -1282,15 +1397,26 @@ export function AdminDashboard() {
                     </label>
 
                     {editingItem.image && (
-                      <div className="relative rounded-xl overflow-hidden border border-beige-300 aspect-video bg-beige-100 max-h-36 flex items-center justify-center">
+                      <div className="relative rounded-xl overflow-hidden border border-beige-300 aspect-video bg-beige-100 max-h-36 flex items-center justify-center group">
                         <img src={editingItem.image} alt="Preview" className="h-full w-full object-cover" />
-                        <button 
-                          type="button" 
-                          onClick={() => setEditingItem({...editingItem, image: ''})} 
-                          className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-md cursor-pointer"
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => openCropperForSingleImage(editingItem.image)}
+                            className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold flex items-center space-x-1 shadow-md cursor-pointer transition-colors"
+                          >
+                            <Crop size={12} />
+                            <span>Adjust & Fit</span>
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => setEditingItem({...editingItem, image: ''})} 
+                            className="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md cursor-pointer"
+                            title="Remove image"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </div>
                     )}
                     <input placeholder="Or paste direct Image URL" className="w-full p-2.5 bg-beige-50 border border-beige-300 rounded-xl font-medium focus:outline-none focus:border-[#5d4037]" value={editingItem.image || ''} onChange={e => setEditingItem({...editingItem, image: e.target.value})} />
@@ -1381,6 +1507,15 @@ export function AdminDashboard() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Interactive Image Adjuster & Cropper Modal */}
+      <ImageAdjusterModal
+        isOpen={cropperState.isOpen}
+        imageUrl={cropperState.imageUrl}
+        initialRatio={cropperState.initialRatio}
+        onClose={() => setCropperState(prev => ({ ...prev, isOpen: false }))}
+        onSave={(croppedDataUrl, ratio) => cropperState.onSaveCallback(croppedDataUrl, ratio)}
+      />
     </div>
   );
 }
