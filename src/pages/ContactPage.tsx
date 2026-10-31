@@ -12,8 +12,8 @@ import { useSiteSettings } from "../hooks/useLiveContent";
 
 export function ContactPage() {
   const settings = useSiteSettings();
-  const phoneNumber = "9864074004";
-  const whatsappUrl = `https://wa.me/91${phoneNumber}?text=Hi`;
+  const whatsappNumber = settings?.whatsapp || "919864074004";
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi`;
 
   const handleOpenWhatsApp = () => {
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
@@ -57,7 +57,7 @@ export function ContactPage() {
           <div className="bg-white p-6 sm:p-8 rounded-2xl border-2 border-[#128C7E]/30 shadow-sm max-w-md mx-auto space-y-4">
             <div className="flex items-center justify-center space-x-2 text-[#128C7E] font-bold text-base">
               <Phone size={18} />
-              <span>+91 {phoneNumber}</span>
+              <span>{whatsappNumber.startsWith('91') ? `+91 ${whatsappNumber.slice(2)}` : whatsappNumber}</span>
             </div>
 
             <motion.button

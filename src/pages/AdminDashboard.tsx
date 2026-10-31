@@ -140,7 +140,8 @@ export function AdminDashboard() {
               tagline: "Bringing nature's beauty into your home with artisanal floral arrangements crafted with love.", 
               copyright: "© 2026 Bright N Bliss Bouquets. All Rights Reserved." 
             },
-            aboutUs: "Bright N Bliss is your premium destination for handcrafted floral arrangements, bringing nature's finest blooms straight to your doorstep."
+            aboutUs: "Bright N Bliss is your premium destination for handcrafted floral arrangements, bringing nature's finest blooms straight to your doorstep.",
+            whatsapp: "919864074004"
           };
           setSettingsForm(prev => prev ? prev : defaults);
         }
@@ -1101,6 +1102,18 @@ export function AdminDashboard() {
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-beige-200 space-y-4">
+              <h4 className="font-bold text-sm text-[#5d4037] uppercase tracking-wider">WhatsApp Number</h4>
+              <p className="text-[10px] text-beige-900/50 -mt-2">Enter number with country code (e.g., 919864074004 for India)</p>
+              <input 
+                type="text" 
+                value={settingsForm?.whatsapp || ''} 
+                onChange={(e) => setSettingsForm(prev => prev ? { ...prev, whatsapp: e.target.value } : null)}
+                placeholder="e.g. 919864074004"
+                className="w-full bg-beige-50 border border-beige-300 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#5d4037]" 
+              />
             </div>
 
             <div className="bg-white p-5 sm:p-6 rounded-2xl border border-beige-200 space-y-4">

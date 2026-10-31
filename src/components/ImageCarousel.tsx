@@ -33,7 +33,7 @@ export function ImageCarousel() {
   };
 
   return (
-    <section className="py-4 md:py-8 bg-beige-100 overflow-hidden border-y border-beige-900/5">
+    <section className="py-2 md:py-4 bg-beige-100 overflow-hidden border-y border-beige-900/5">
       <div className="relative max-w-4xl mx-auto px-0 md:px-4">
         <div className="relative aspect-square md:aspect-video overflow-hidden md:rounded-sm shadow-md bg-beige-200">
           <AnimatePresence initial={false} custom={direction}>
@@ -62,17 +62,17 @@ export function ImageCarousel() {
           <div className="absolute inset-0 flex items-center justify-between p-2 md:p-4 z-10 pointer-events-none">
             <button
               onClick={() => paginate(-1)}
-              className="p-1.5 md:p-2 rounded-full bg-white/80 text-beige-900 shadow-sm backdrop-blur-sm pointer-events-auto hover:bg-white transition-colors"
+              className="p-1 rounded-full bg-white/80 text-beige-900 shadow-sm backdrop-blur-sm pointer-events-auto hover:bg-white transition-colors"
               aria-label="Previous image"
             >
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             <button
               onClick={() => paginate(1)}
-              className="p-1.5 md:p-2 rounded-full bg-white/80 text-beige-900 shadow-sm backdrop-blur-sm pointer-events-auto hover:bg-white transition-colors"
+              className="p-1 rounded-full bg-white/80 text-beige-900 shadow-sm backdrop-blur-sm pointer-events-auto hover:bg-white transition-colors"
               aria-label="Next image"
             >
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+              <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </div>
           

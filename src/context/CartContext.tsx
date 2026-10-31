@@ -5,6 +5,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, CartItem } from "../types";
+import { useSiteSettings } from "../hooks/useLiveContent";
 
 interface WhatsAppNotification {
   show: boolean;
@@ -34,9 +35,12 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "bright_n_bliss_cart";
-const WHATSAPP_NUMBER = "919864074004";
+const DEFAULT_WHATSAPP_NUMBER = "919864074004";
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const settings = useSiteSettings();
+  const whatsappNumber = settings?.whatsapp || DEFAULT_WHATSAPP_NUMBER;
+
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem(CART_STORAGE_KEY);
@@ -128,7 +132,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const encodedText = encodeURIComponent(orderText);
-    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
+    const waUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
     const summaryStr = items.map(i => `${i.quantity}x ${i.name}`).join(", ");
 
     // Show Notification Dialog Alert

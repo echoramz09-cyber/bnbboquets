@@ -18,6 +18,7 @@ export interface SiteSettings {
   footer: FooterContent;
   logo: string;
   aboutUs: string;
+  whatsapp: string;
 }
 
 export interface Category {

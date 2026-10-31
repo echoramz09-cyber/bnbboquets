@@ -34,7 +34,7 @@ export function Footer() {
               <span>Contact Us</span>
             </Link>
             <a
-              href="https://wa.me/919864074004?text=Hi"
+              href={`https://wa.me/${settings?.whatsapp || "919864074004"}?text=Hi`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#128C7E] hover:text-[#0e6f64] transition-colors flex items-center space-x-1 font-bold"
