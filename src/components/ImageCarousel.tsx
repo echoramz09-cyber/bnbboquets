@@ -35,7 +35,7 @@ export function ImageCarousel() {
   return (
     <section className="py-4 md:py-8 bg-beige-100 overflow-hidden border-y border-beige-900/5">
       <div className="relative max-w-4xl mx-auto px-0 md:px-4">
-        <div className="relative aspect-[4/5] md:aspect-video overflow-hidden md:rounded-sm shadow-md bg-beige-200">
+        <div className="relative aspect-square md:aspect-video overflow-hidden md:rounded-sm shadow-md bg-beige-200">
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={currentIndex}
