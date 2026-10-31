@@ -17,6 +17,7 @@ export interface SiteSettings {
   hero: HeroContent;
   footer: FooterContent;
   logo: string;
+  aboutUs: string;
 }
 
 export interface Category {

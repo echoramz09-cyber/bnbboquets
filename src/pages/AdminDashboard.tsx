@@ -75,50 +75,102 @@ export function AdminDashboard() {
   };
 
   useEffect(() => {
-    const isBypassed = localStorage.getItem('admin_bypass') === 'true';
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        setIsLoading(false);
-      } else if (isBypassed) {
-        setUser({ email: 'admin@bypass.local', isBypass: true });
-        setIsLoading(false);
-      } else {
-        navigate('/admin');
+    const isBypassed = localStorage.getItem('admin_bypass') === 'true' || localStorage.getItem('admin_logged_in') === 'true';
+    let isMounted = true;
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (!isMounted) return;
+        if (currentUser) {
+          setUser(currentUser);
+          localStorage.setItem('admin_logged_in', 'true');
+          setIsLoading(false);
+        } else if (isBypassed) {
+          setUser({ email: 'admin@bypass.local', isBypass: true });
+          setIsLoading(false);
+        } else {
+          // If neither firebase auth nor local admin token is active, redirect to login
+          navigate('/admin');
+        }
+      },
+      (error) => {
+        console.warn("Auth state listener notice:", error);
       }
-    });
-    return () => unsubscribe();
+    );
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [navigate]);
 
   const handleLogout = async () => {
     setIsSidebarOpen(false);
     localStorage.removeItem('admin_bypass');
-    await signOut(auth);
+    localStorage.removeItem('admin_logged_in');
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.warn("Sign out error:", e);
+    }
     navigate('/admin', { replace: true });
   };
 
   useEffect(() => {
     if (!user) return;
 
-    const unsubSettings = onSnapshot(doc(db, "siteSettings", "global"), (d) => {
-      if (d.exists()) {
-        const val = d.data() as SiteSettings;
-        setSettings(val);
-        setSettingsForm(prev => prev ? prev : val);
-      }
-    });
+    const safeErrorHandler = (err: any) => {
+      console.warn("Firestore snapshot notice:", err);
+    };
 
-    const unsubCats = onSnapshot(query(collection(db, "categories"), orderBy("order", "asc")), (s) => {
-      setCategories(s.docs.map(d => ({ id: d.id, ...d.data() })) as Category[]);
-    });
+    const unsubSettings = onSnapshot(
+      doc(db, "siteSettings", "global"),
+      (d) => {
+        if (d.exists()) {
+          const val = d.data() as SiteSettings;
+          setSettings(val);
+          setSettingsForm(prev => prev ? prev : val);
+        } else {
+          // Initialize with defaults if doc doesn't exist so admin can create it
+          const defaults: SiteSettings = {
+            logo: 'bright n bliss',
+            hero: { title: 'Exquisite Selections', subtitle: 'Shop By Category' },
+            footer: { 
+              tagline: "Bringing nature's beauty into your home with artisanal floral arrangements crafted with love.", 
+              copyright: "© 2026 Bright N Bliss Bouquets. All Rights Reserved." 
+            },
+            aboutUs: "Bright N Bliss is your premium destination for handcrafted floral arrangements, bringing nature's finest blooms straight to your doorstep."
+          };
+          setSettingsForm(prev => prev ? prev : defaults);
+        }
+      },
+      safeErrorHandler
+    );
 
-    const unsubProds = onSnapshot(query(collection(db, "products"), orderBy("order", "asc")), (s) => {
-      setProducts(s.docs.map(d => ({ id: d.id, ...d.data() })) as Product[]);
-    });
+    const unsubCats = onSnapshot(
+      query(collection(db, "categories"), orderBy("order", "asc")),
+      (s) => {
+        setCategories(s.docs.map(d => ({ id: d.id, ...d.data() })) as Category[]);
+      },
+      safeErrorHandler
+    );
 
-    const unsubCarousel = onSnapshot(query(collection(db, "carousel"), orderBy("order", "asc")), (s) => {
-      setCarousel(s.docs.map(d => ({ id: d.id, ...d.data() })) as CarouselImage[]);
-    });
+    const unsubProds = onSnapshot(
+      query(collection(db, "products"), orderBy("order", "asc")),
+      (s) => {
+        setProducts(s.docs.map(d => ({ id: d.id, ...d.data() })) as Product[]);
+      },
+      safeErrorHandler
+    );
+
+    const unsubCarousel = onSnapshot(
+      query(collection(db, "carousel"), orderBy("order", "asc")),
+      (s) => {
+        setCarousel(s.docs.map(d => ({ id: d.id, ...d.data() })) as CarouselImage[]);
+      },
+      safeErrorHandler
+    );
 
     return () => {
       unsubSettings();
@@ -1050,6 +1102,16 @@ export function AdminDashboard() {
                 </div>
               </div>
             </div>
+
+            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-beige-200 space-y-4">
+              <h4 className="font-bold text-sm text-[#5d4037] uppercase tracking-wider">About Us Content</h4>
+              <textarea 
+                value={settingsForm?.aboutUs || ''} 
+                onChange={(e) => setSettingsForm(prev => prev ? { ...prev, aboutUs: e.target.value } : null)}
+                placeholder="Write a few sentences about your store..."
+                className="w-full bg-beige-50 border border-beige-300 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#5d4037] h-32 resize-none" 
+              />
+            </div>
           </form>
         )}
       </main>
@@ -1229,7 +1291,7 @@ export function AdminDashboard() {
                                   <div className={`relative w-14 rounded-lg overflow-hidden border border-beige-300 bg-beige-200 shrink-0 ${
                                     isSlotPortrait ? 'aspect-[3/4]' : 'aspect-square'
                                   }`}>
-                                    <img src={slotVal} alt={`Slot ${slotIdx + 1}`} className={`w-full h-full ${isSlotPortrait ? 'object-contain bg-[#faf6f0]' : 'object-cover'}`} />
+                                    <img src={slotVal} alt={`Slot ${slotIdx + 1}`} className="w-full h-full object-cover" />
                                   </div>
                                 ) : (
                                   <div className="w-14 h-14 rounded-lg border border-dashed border-beige-300 bg-white flex flex-col items-center justify-center shrink-0 text-beige-900/40">
@@ -1362,7 +1424,7 @@ export function AdminDashboard() {
                               <img
                                 src={editingItem.image || (editingItem.images && editingItem.images.find(Boolean))}
                                 alt="Store preview"
-                                className={`w-full h-full ${editingItem.imageAspectRatio === 'portrait' ? 'object-contain bg-[#faf6f0]' : 'object-cover'}`}
+                                className="w-full h-full object-cover"
                               />
                             </div>
                           </div>

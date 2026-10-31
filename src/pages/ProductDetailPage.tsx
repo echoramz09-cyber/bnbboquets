@@ -194,7 +194,7 @@ export function ProductDetailPage() {
                       <img
                         src={galleryImages[activeImageIndex] || product.image}
                         alt={product.name}
-                        className={`w-full h-full ${isActivePortrait ? 'object-contain bg-[#faf6f0]' : 'object-cover'} pointer-events-none`}
+                        className="w-full h-full object-cover pointer-events-none"
                       />
                     </motion.div>
                   </AnimatePresence>
@@ -271,7 +271,7 @@ export function ProductDetailPage() {
                             activeImageIndex === idx ? "border-[#5d4037] ring-2 ring-[#5d4037]/20 scale-105" : "border-beige-300 opacity-70 hover:opacity-100"
                           }`}
                         >
-                          <img src={img} alt={`${product.name} ${idx + 1}`} className={`w-full h-full ${isThumbPortrait ? 'object-contain bg-[#faf6f0]' : 'object-cover'}`} />
+                          <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
                         </button>
                       );
                     })}

@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Bright N Bliss Bouquets",
+  "short_name": "BrightNBliss",
+  "description": "Handpicked floral arrangements crafted for every emotion.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "minimal-ui",
+  "background_color": "#fdfbf7",
+  "theme_color": "#5d4037",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

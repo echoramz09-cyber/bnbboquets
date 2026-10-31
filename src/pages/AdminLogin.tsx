@@ -13,14 +13,15 @@ export function AdminLogin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in via bypass or firebase auth
-    if (localStorage.getItem('admin_bypass') === 'true') {
+    // Check if user is already logged in via bypass or persistent admin session
+    if (localStorage.getItem('admin_bypass') === 'true' || localStorage.getItem('admin_logged_in') === 'true') {
       navigate('/admin/dashboard', { replace: true });
       return;
     }
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        localStorage.setItem('admin_logged_in', 'true');
         navigate('/admin/dashboard', { replace: true });
       }
     });
@@ -39,6 +40,7 @@ export function AdminLogin() {
     // Priority bypass for the admin account to handle cases where Firebase Auth providers are disabled
     if (username === 'alisha' && password === 'helloalisha') {
       localStorage.setItem('admin_bypass', 'true');
+      localStorage.setItem('admin_logged_in', 'true');
       navigate('/admin/dashboard');
       return;
     }
@@ -46,7 +48,7 @@ export function AdminLogin() {
     try {
       await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
-      localStorage.removeItem('admin_bypass'); // Clear bypass if real auth works
+      localStorage.setItem('admin_logged_in', 'true');
       navigate('/admin/dashboard');
     } catch (err: any) {
       console.error("Login error code:", err.code);

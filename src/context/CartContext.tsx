@@ -142,7 +142,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const confirmWhatsAppRedirect = () => {
     if (whatsappNotification && whatsappNotification.waUrl) {
-      window.open(whatsappNotification.waUrl, "_blank");
+      try {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+          window.location.href = whatsappNotification.waUrl;
+        } else {
+          window.open(whatsappNotification.waUrl, "_blank", "noopener,noreferrer");
+        }
+      } catch {
+        window.location.href = whatsappNotification.waUrl;
+      }
     }
     setWhatsappNotification(null);
   };

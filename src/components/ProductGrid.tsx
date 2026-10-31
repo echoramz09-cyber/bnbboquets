@@ -70,7 +70,7 @@ export function ProductGrid() {
                   <img 
                     src={product.image || "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80"} 
                     alt={product.name}
-                    className={`w-full h-full ${isPortrait ? 'object-cover sm:object-contain bg-[#faf6f0]' : 'object-cover'} transition-transform duration-700 group-hover:scale-105`}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   {product.tag && (
                     <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">

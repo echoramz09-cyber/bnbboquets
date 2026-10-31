@@ -22,16 +22,27 @@ import { CartProvider } from "./context/CartContext";
 import { CartDrawer } from "./components/CartDrawer";
 import { AddToCartToast } from "./components/AddToCartToast";
 import { WhatsAppNotification } from "./components/WhatsAppNotification";
+import { AboutSection } from "./components/AboutSection";
 
 function LandingPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    try {
+      return !sessionStorage.getItem("bright_intro_shown");
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
+    if (!isLoading) return;
     const timer = setTimeout(() => {
       setIsLoading(false);
+      try {
+        sessionStorage.setItem("bright_intro_shown", "true");
+      } catch {}
     }, 2800); // Slightly longer for the flower bloom to finish gracefully
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoading]);
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-beige-300 selection:text-beige-900">
@@ -46,6 +57,7 @@ function LandingPage() {
               <CategorySection />
               <Hero />
               <ProductGrid />
+              <AboutSection />
             </main>
             <Footer />
           </React.Fragment>

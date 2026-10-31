@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <rect width="512" height="512" rx="128" fill="#5d4037"/>
+  <circle cx="256" cy="256" r="48" fill="#fdfbf7"/>
+  <!-- Petals -->
+  <circle cx="256" cy="140" r="54" fill="#eed9c4" opacity="0.95"/>
+  <circle cx="356" cy="198" r="54" fill="#eed9c4" opacity="0.95"/>
+  <circle cx="356" cy="314" r="54" fill="#eed9c4" opacity="0.95"/>
+  <circle cx="256" cy="372" r="54" fill="#eed9c4" opacity="0.95"/>
+  <circle cx="156" cy="314" r="54" fill="#eed9c4" opacity="0.95"/>
+  <circle cx="156" cy="198" r="54" fill="#eed9c4" opacity="0.95"/>
+  <circle cx="256" cy="256" r="32" fill="#d97706"/>
+</svg>
